@@ -17,7 +17,7 @@ class ProbModelWrapper:
     kind: "logreg" | "hgb" | "ensemble"
     obj:
       - logreg: CalibratedClassifierCV
-      - hgb: (HistGradientBoostingClassifier, IsotonicRegression)
+      - hgb: (HistGradientBoostingClassifier, IsotonicRegression) OU um estimador com predict_proba
       - ensemble: {"lr": ProbModelWrapper, "hgb": ProbModelWrapper, "w": float}
     """
     def __init__(self, kind: str, obj: Any):
@@ -27,19 +27,41 @@ class ProbModelWrapper:
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         if self.kind == "logreg":
             p1 = self.obj.predict_proba(X)[:, 1]
+            p1 = np.clip(p1, 1e-6, 1 - 1e-6)
+            return np.column_stack([1 - p1, p1])
+
         elif self.kind == "hgb":
-            base, iso = self.obj
-            p_raw = base.predict_proba(X)[:, 1]
-            p1 = iso.predict(p_raw)
+            obj = self.obj
+            # Caso 1: formato antigo (base, iso)
+            if isinstance(obj, tuple) and len(obj) == 2:
+                base, iso = obj
+                p_raw = base.predict_proba(X)[:, 1]
+                p1 = iso.predict(p_raw)
+                p1 = np.clip(p1, 1e-6, 1 - 1e-6)
+                return np.column_stack([1 - p1, p1])
+            # Caso 2: estimador único já com predict_proba
+            probs = obj.predict_proba(X)
+            # Pode vir (N,), (N,1) ou (N,2) dependendo da classe wrapper
+            if probs.ndim == 1:
+                p1 = np.clip(probs, 1e-6, 1 - 1e-6)
+                return np.column_stack([1 - p1, p1])
+            if probs.shape[1] == 1:
+                p1 = np.clip(probs[:, 0], 1e-6, 1 - 1e-6)
+                return np.column_stack([1 - p1, p1])
+            # (N,2) normal
+            probs = np.clip(probs, 1e-6, 1 - 1e-6)
+            return probs
+
         elif self.kind == "ensemble":
             w = float(self.obj["w"])
             p_lr = self.obj["lr"].predict_proba(X)[:, 1]
             p_hg = self.obj["hgb"].predict_proba(X)[:, 1]
             p1 = w * p_lr + (1.0 - w) * p_hg
+            p1 = np.clip(p1, 1e-6, 1 - 1e-6)
+            return np.column_stack([1 - p1, p1])
+
         else:
             raise ValueError(f"Unknown model kind: {self.kind}")
-        p1 = np.clip(p1, 1e-6, 1 - 1e-6)
-        return np.column_stack([1 - p1, p1])
 
 
 # ---------- Legacy function (holdout simples) ----------
@@ -66,63 +88,140 @@ def train_logreg_calibrated(
 # ---------- Melhor: TimeSeriesSplit + calibração ----------
 
 def train_logreg_ts_cv(
-    X: np.ndarray, y: np.ndarray, max_iter: int = 2000, calibration: str = "isotonic",
-    n_splits: int = 5, seed: int = 42
-) -> Dict[str, Any]:
+    X, y, n_splits=5, seed=42, max_iter=2000, calibration="isotonic"
+):
+    import numpy as np
+    from sklearn.linear_model import LogisticRegression
+    from sklearn.calibration import CalibratedClassifierCV
+    from sklearn.model_selection import TimeSeriesSplit
+    from sklearn.metrics import roc_auc_score, log_loss
+
     tscv = TimeSeriesSplit(n_splits=n_splits)
     aucs, lls = [], []
+    valid_folds = 0
 
     for tr_idx, va_idx in tscv.split(X):
-        X_tr, X_va = X[tr_idx], X[va_idx]
         y_tr, y_va = y[tr_idx], y[va_idx]
+
+        # Skip folds sem as duas classes (evita o erro do solver/calibrator)
+        if len(np.unique(y_tr)) < 2 or len(np.unique(y_va)) < 2:
+            continue
+
         base = LogisticRegression(max_iter=max_iter, random_state=seed, C=1.5)
         model = CalibratedClassifierCV(base, method=calibration, cv=3)
-        model.fit(X_tr, y_tr)
-        p = model.predict_proba(X_va)[:, 1]
+        model.fit(X[tr_idx], y_tr)
+
+        p = model.predict_proba(X[va_idx])[:, 1]
         aucs.append(roc_auc_score(y_va, p))
         lls.append(log_loss(y_va, p))
+        valid_folds += 1
 
-    # retrain full
-    base = LogisticRegression(max_iter=max_iter, random_state=seed, C=1.5)
-    final = CalibratedClassifierCV(base, method=calibration, cv=3).fit(X, y)
-    wrapper = ProbModelWrapper("logreg", final)
+    # Treino final no conjunto completo (com salvaguarda caso falte classe)
+    if len(np.unique(y)) < 2:
+        # Último recurso: sem calibração (pelo menos não rebenta)
+        final_model = LogisticRegression(max_iter=max_iter, random_state=seed, C=1.5)
+        final_model.fit(X, y)
+    else:
+        final_model = CalibratedClassifierCV(
+            LogisticRegression(max_iter=max_iter, random_state=seed, C=1.5),
+            method=calibration, cv=3
+        )
+        final_model.fit(X, y)
 
-    return {"model": wrapper, "cv_auc": float(np.mean(aucs)), "cv_logloss": float(np.mean(lls))}
+    out = {
+        "model": final_model,
+        "cv_auc": float(np.mean(aucs)) if valid_folds > 0 else float("nan"),
+        "cv_logloss": float(np.mean(lls)) if valid_folds > 0 else float("nan"),
+        "n_valid_folds": valid_folds,
+    }
+    return out
 
 
 def train_hgb_ts_cv(
-    X: np.ndarray, y: np.ndarray, n_splits: int = 5, seed: int = 42,
-    max_depth: int = 6, learning_rate: float = 0.06, max_iter: int = 400
-) -> Dict[str, Any]:
+    X, y,
+    n_splits=5,
+    seed=42,
+    max_depth=6,
+    learning_rate=0.06,
+    max_iter=2000
+):
+    import numpy as np
+    from sklearn.model_selection import TimeSeriesSplit
+    from sklearn.ensemble import HistGradientBoostingClassifier
+    from sklearn.isotonic import IsotonicRegression
+    from sklearn.metrics import roc_auc_score, log_loss
+    from sklearn.base import BaseEstimator, ClassifierMixin
+
     tscv = TimeSeriesSplit(n_splits=n_splits)
     aucs, lls = [], []
+    valid_folds = 0
 
     for tr_idx, va_idx in tscv.split(X):
         X_tr, X_va = X[tr_idx], X[va_idx]
         y_tr, y_va = y[tr_idx], y[va_idx]
 
+        # precisa de 2 classes no train e no val
+        if np.unique(y_tr).size < 2 or np.unique(y_va).size < 2:
+            continue
+
         base = HistGradientBoostingClassifier(
-            max_depth=max_depth, learning_rate=learning_rate, max_iter=max_iter,
-            l2_regularization=0.0, random_state=seed
+            max_depth=max_depth,
+            learning_rate=learning_rate,
+            max_iter=max_iter,
+            random_state=seed
         )
         base.fit(X_tr, y_tr)
+
+        # calibrar na própria validação (isotonic)
         p_raw = base.predict_proba(X_va)[:, 1]
         iso = IsotonicRegression(out_of_bounds="clip").fit(p_raw, y_va)
         p = iso.predict(p_raw)
+
+        # métricas só fazem sentido com 2 classes em y_va (já garantido acima)
         aucs.append(roc_auc_score(y_va, p))
-        lls.append(log_loss(y_va, p))
+        # log_loss binário espera probs das duas classes (N,2)
+        lls.append(log_loss(y_va, np.c_[1 - p, p]))
+        valid_folds += 1
 
-    # retrain full + isotonic on full (alternativa: calibrar numa janela final)
-    base = HistGradientBoostingClassifier(
-        max_depth=max_depth, learning_rate=learning_rate, max_iter=max_iter,
-        l2_regularization=0.0, random_state=seed
+    # treina base final em tudo
+    full_base = HistGradientBoostingClassifier(
+        max_depth=max_depth,
+        learning_rate=learning_rate,
+        max_iter=max_iter,
+        random_state=seed
     ).fit(X, y)
-    p_full = base.predict_proba(X)[:, 1]
-    iso = IsotonicRegression(out_of_bounds="clip").fit(p_full, y)
-    wrapper = ProbModelWrapper("hgb", (base, iso))
 
-    return {"model": wrapper, "cv_auc": float(np.mean(aucs)), "cv_logloss": float(np.mean(lls))}
+    # tentar calibrar em uma janela final que tenha 0 e 1
+    def _calibrate_on_tail(base, X_all, y_all):
+        win = min(len(y_all), 50000)  # começa com janela grande
+        while win >= 1000:
+            y_tail = y_all[-win:]
+            if np.unique(y_tail).size == 2:
+                p_tail = base.predict_proba(X_all[-win:])[:, 1]
+                iso_full = IsotonicRegression(out_of_bounds="clip").fit(p_tail, y_tail)
 
+                class CalibratedHGB(BaseEstimator, ClassifierMixin):
+                    def __init__(self, base, iso):
+                        self.base = base
+                        self.iso = iso
+                    def predict_proba(self, X_):
+                        p_raw_ = self.base.predict_proba(X_)[:, 1]
+                        p_ = self.iso.predict(p_raw_)
+                        return np.c_[1 - p_, p_]
+
+                return CalibratedHGB(base, iso_full)
+            win //= 2
+        return None  # não foi possível calibrar
+
+    calibrated = _calibrate_on_tail(full_base, X, y)
+    model = calibrated if calibrated is not None else full_base
+
+    return {
+        "model": model,
+        "cv_auc": float(np.nanmean(aucs)) if len(aucs) else float("nan"),
+        "cv_logloss": float(np.nanmean(lls)) if len(lls) else float("nan"),
+        "n_valid_folds": valid_folds
+    }
 
 # ---------- Utilidades de ensemble (média das probs) ----------
 
