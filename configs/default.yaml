@@ -1,0 +1,19 @@
+
+seed: 42
+elo:
+  start: 1500.0
+  k_base: 32.0
+  surface_k_boost: 1.15
+features:
+  form_window: 10
+  h2h_decay: 0.97
+model:
+  type: "logreg"
+  calibration: "sigmoid"  # 'sigmoid' or 'isotonic'
+  test_size: 0.2
+  shuffle: false
+  max_iter: 1000
+selection:
+  ev_threshold: 0.02
+  kelly_fraction: 0.25
+  kelly_cap: 0.05
