@@ -4,6 +4,16 @@ from datetime import datetime, timezone
 from dataclasses import dataclass, field
 from typing import Dict, Tuple, List
 
+# --- Fatigue: cria features e ajusta probabilidades ---
+from .features.fatigue import (
+    add_fatigue_features,
+    adjust_probs_for_fixtures_row,
+    FatigueParams,
+)
+
+# pesos/base defaults para o ajuste (podes afinar no ficheiro de fatigue)
+FATIGUE = FatigueParams()
+
 
 # ------------------ util ------------------
 
@@ -199,6 +209,14 @@ def generate_tips(history_df: pd.DataFrame, fixtures_df: pd.DataFrame, model, cf
             "p1_prob","p2_prob","ev_p1","ev_p2","pick","best_ev","stake_suggest"
         ])
 
+    # --- Garante features de fadiga no fixtures_df (gera se faltarem) ---
+    need_cols = {
+        "p1_matches_7d","p1_matches_14d","p1_matches_30d","p1_b2b","p1_rest_48h",
+        "p2_matches_7d","p2_matches_14d","p2_matches_30d","p2_b2b","p2_rest_48h",
+    }
+    if not need_cols.issubset(set(fixtures_df.columns)):
+        fixtures_df = add_fatigue_features(fixtures_df, history_df)
+
     # construir estado a partir do histórico
     players = build_player_states(
         history_df,
@@ -227,6 +245,9 @@ def generate_tips(history_df: pd.DataFrame, fixtures_df: pd.DataFrame, model, cf
         p = model.predict_proba(X)
         p1_win = float(p[:, 1][0])
         p2_win = 1.0 - p1_win
+
+        # --- AJUSTE por FADIGA (penaliza quem está mais “carregado”) ---
+        p1_win, p2_win = adjust_probs_for_fixtures_row(r, p1_win, p2_win, FATIGUE)
 
         # EV simples (decimais): EV = p*odds - (1-p)
         ev1 = p1_win * o1 - (1.0 - p1_win) if o1 == o1 else np.nan

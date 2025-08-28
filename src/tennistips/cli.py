@@ -137,6 +137,14 @@ def tips(
     typer.echo(f"Gerado {len(tips_df)} tips → {out}")
     if len(tips_df) > 0:
         typer.echo(tips_df.to_string(index=False))
+    from src.tennistips.features.fatigue import add_fatigue_features
+
+hist = load_matches(history)
+fx = load_fixtures(fixtures)
+
+# acrescenta métricas de fadiga ao dataframe de fixtures
+fx = add_fatigue_features(fx, hist)
+    
 
 
 @app.command()
