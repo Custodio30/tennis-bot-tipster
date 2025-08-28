@@ -8,7 +8,6 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.isotonic import IsotonicRegression
 import joblib
 
-
 # ---------- Compat wrapper (sempre expõe predict_proba) ----------
 
 class ProbModelWrapper:
@@ -17,7 +16,7 @@ class ProbModelWrapper:
     kind: "logreg" | "hgb" | "ensemble"
     obj:
       - logreg: CalibratedClassifierCV
-      - hgb: (HistGradientBoostingClassifier, IsotonicRegression) OU um estimador com predict_proba
+      - hgb: (HistGradientBoostingClassifier, IsotonicRegression)  OU  qualquer estimador com predict_proba
       - ensemble: {"lr": ProbModelWrapper, "hgb": ProbModelWrapper, "w": float}
     """
     def __init__(self, kind: str, obj: Any):
@@ -27,41 +26,68 @@ class ProbModelWrapper:
     def predict_proba(self, X: np.ndarray) -> np.ndarray:
         if self.kind == "logreg":
             p1 = self.obj.predict_proba(X)[:, 1]
-            p1 = np.clip(p1, 1e-6, 1 - 1e-6)
-            return np.column_stack([1 - p1, p1])
 
         elif self.kind == "hgb":
-            obj = self.obj
-            # Caso 1: formato antigo (base, iso)
-            if isinstance(obj, tuple) and len(obj) == 2:
-                base, iso = obj
+            # Aceita tupla (base, iso) OU objeto único com predict_proba
+            if isinstance(self.obj, tuple) and len(self.obj) == 2:
+                base, iso = self.obj
                 p_raw = base.predict_proba(X)[:, 1]
                 p1 = iso.predict(p_raw)
-                p1 = np.clip(p1, 1e-6, 1 - 1e-6)
-                return np.column_stack([1 - p1, p1])
-            # Caso 2: estimador único já com predict_proba
-            probs = obj.predict_proba(X)
-            # Pode vir (N,), (N,1) ou (N,2) dependendo da classe wrapper
-            if probs.ndim == 1:
-                p1 = np.clip(probs, 1e-6, 1 - 1e-6)
-                return np.column_stack([1 - p1, p1])
-            if probs.shape[1] == 1:
-                p1 = np.clip(probs[:, 0], 1e-6, 1 - 1e-6)
-                return np.column_stack([1 - p1, p1])
-            # (N,2) normal
-            probs = np.clip(probs, 1e-6, 1 - 1e-6)
-            return probs
+            else:
+                proba = self.obj.predict_proba(X)
+                # se vier (n,2), usa a coluna 1; se vier (n,), aceita direto
+                p1 = proba[:, 1] if proba.ndim == 2 and proba.shape[1] == 2 else np.ravel(proba)
 
         elif self.kind == "ensemble":
             w = float(self.obj["w"])
             p_lr = self.obj["lr"].predict_proba(X)[:, 1]
             p_hg = self.obj["hgb"].predict_proba(X)[:, 1]
             p1 = w * p_lr + (1.0 - w) * p_hg
-            p1 = np.clip(p1, 1e-6, 1 - 1e-6)
-            return np.column_stack([1 - p1, p1])
 
         else:
             raise ValueError(f"Unknown model kind: {self.kind}")
+
+        p1 = np.clip(p1, 1e-6, 1 - 1e-6)
+        return np.column_stack([1 - p1, p1])
+
+# ---------- Persistência ----------
+
+def save_model(model: Union['ProbModelWrapper', Tuple[str, dict]], path: str):
+    """
+    Aceita tanto um ProbModelWrapper como um tuple ("ensemble", {...}).
+    Se receber o tuple, converte para ProbModelWrapper de ensemble.
+    """
+    import os
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+
+    # já é wrapper? salva direto
+    if isinstance(model, ProbModelWrapper):
+        joblib.dump(model, path)
+        return
+
+    # tuple estilo ("ensemble", {"lr": wrapper/estimador, "hgb": wrapper/estimador, "w": 0.5})
+    if isinstance(model, tuple) and model[0] == "ensemble":
+        lr = model[1]["lr"]
+        hgb = model[1]["hgb"]
+        w = float(model[1]["w"])
+
+        # Garante wrappers coerentes
+        if not isinstance(lr, ProbModelWrapper):
+            lr = ProbModelWrapper("logreg", lr)
+        if not isinstance(hgb, ProbModelWrapper):
+            # não sabemos se é tupla (base, iso) ou objeto, mas o wrapper lida com ambos
+            hgb = ProbModelWrapper("hgb", hgb)
+
+        wrapper = ProbModelWrapper("ensemble", {"lr": lr, "hgb": hgb, "w": w})
+        joblib.dump(wrapper, path)
+        return
+
+    # fallback: embrulha como logreg (mantém retrocompat)
+    wrapper = ProbModelWrapper("logreg", model)
+    joblib.dump(wrapper, path)
+
+def load_model(path: str) -> ProbModelWrapper:
+    return joblib.load(path)
 
 
 # ---------- Legacy function (holdout simples) ----------
