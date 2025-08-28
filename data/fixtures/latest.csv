@@ -111,12 +111,12 @@ date,event_id,tournament,category,surface,home,away,start_ts
 2025-08-29,14552697,"US Open, New York, USA, Doubles",WTA,,Osorio C / Yuan Y,Mihalikova T / Nicholls O,1756479600
 2025-08-29,14552672,"US Open, New York, USA, Doubles",WTA,,Ruzic A / Schoofs B,Danilina A / Krunic A,1756485900
 2025-08-29,14552696,"US Open, New York, USA, Doubles",WTA,,Zhang S / Alexandrova E,Cristian J A / Moratelli A,1756480500
-2025-08-29,14487487,"Como, Italy",Challenger,,Gonzalo Bueno,Henri Squire,1756379700
-2025-08-29,14487481,"Como, Italy",Challenger,,Luka Mikrut,Carlo Alberto Caniato,1756370700
-2025-08-29,14487476,"Como, Italy",Challenger,,Raul Brancaccio,Alvaro Guillen Meza,1756367100
-2025-08-29,14487488,"Como, Italy",Challenger,,Nicolai Budkov Kjaer,Giovanni Fonio,1756386600
-2025-08-29,14487475,"Como, Italy",Challenger,,Duje Ajduković,Thiago Monteiro,1756461600
-2025-08-29,14487486,"Como, Italy",Challenger,,Juan Bautista Torres,Jacopo Berrettini,1756457100
+2025-08-29,14487487,"Como, Italy",Challenger,,Gonzalo Bueno,Henri Squire,1756390500
+2025-08-29,14487481,"Como, Italy",Challenger,,Luka Mikrut,Carlo Alberto Caniato,1756381500
+2025-08-29,14487476,"Como, Italy",Challenger,,Raul Brancaccio,Alvaro Guillen Meza,1756377900
+2025-08-29,14487488,"Como, Italy",Challenger,,Nicolai Budkov Kjaer,Giovanni Fonio,1756397400
+2025-08-29,14487475,"Como, Italy",Challenger,,Duje Ajduković,Thiago Monteiro,1756472400
+2025-08-29,14487486,"Como, Italy",Challenger,,Juan Bautista Torres,Jacopo Berrettini,1756467900
 2025-08-29,14487594,"Manacor, Spain",Challenger,,Jay Dylan Hara Friend,Valentin Vacherot,1756378800
 2025-08-29,14487592,"Manacor, Spain",Challenger,,Sascha Gueymard Wayenburg,Edas Butvilas,1756392300
 2025-08-29,14487597,"Manacor, Spain",Challenger,,Stuart Parker,Jakub Paul,1756384200
@@ -125,246 +125,257 @@ date,event_id,tournament,category,surface,home,away,start_ts
 2025-08-29,14487593,"Manacor, Spain",Challenger,,Justin Engel,Jurij Rodionov,1756390200
 2025-08-29,14487599,"Manacor, Spain",Challenger,,Eliakim Coulibaly,Miguel Tobon,1756403400
 2025-08-29,14487601,"Manacor, Spain",Challenger,,Hamish Stewart,Daniel Rincon,1756398900
-2025-08-29,14487556,"Zhangjiagang, China",Challenger,,Renta Tokuda,Oliver Crawford,1756458000
-2025-08-29,14487554,"Zhangjiagang, China",Challenger,,Sanhui Shin,Kokoro Isomura,1756446300
-2025-08-29,14487515,"Porto 2, Portugal",Challenger,,David Jorda Sanchis,Mika Brunold,1756386600
-2025-08-29,14487530,"Porto 2, Portugal",Challenger,,Francisco Rocha,Guy Den Ouden,1756377900
-2025-08-29,14487516,"Porto 2, Portugal",Challenger,,Frederico Ferreira Silva,Tiago Torres,1756393800
-2025-08-29,14487528,"Porto 2, Portugal",Challenger,,Nicolas Alvarez Varona,Gilles Arnaud Bailly,1756464300
-2025-08-29,14487520,"Porto 2, Portugal",Challenger,,Nikolas Sanchez Izquierdo,Alejandro Moro Canas,1756452600
-2025-08-29,14487495,"Como, Italy, Doubles",Challenger,,Cornea V / Rodriguez Taverna S,Latinovic S / Ruehl T,1756384800
-2025-08-29,14487493,"Como, Italy, Doubles",Challenger,,Matuszewski P / Veldheer M,Barnat J / Duda F,1756371300
-2025-08-29,14487492,"Como, Italy, Doubles",Challenger,,Feldbausch K / Jacq G,Liutarevich I / Ricca G,1756386300
-2025-08-29,14487490,"Como, Italy, Doubles",Challenger,,Martin A / Prihodko O,Cukierman D / Ingildsen J,1756374600
+2025-08-29,14487557,"Zhangjiagang, China",Challenger,,Ilia Simakin,Sho Shimabukuro,1756458000
+2025-08-29,14487551,"Zhangjiagang, China",Challenger,,Yasutaka Uchiyama,Kaichi Uchida,1756446300
+2025-08-29,14487556,"Zhangjiagang, China",Challenger,,Renta Tokuda,Oliver Crawford,1756467600
+2025-08-29,14487554,"Zhangjiagang, China",Challenger,,Sanhui Shin,Kokoro Isomura,1756465800
+2025-08-29,14487515,"Porto 2, Portugal",Challenger,,David Jorda Sanchis,Mika Brunold,1756373400
+2025-08-29,14487530,"Porto 2, Portugal",Challenger,,Francisco Rocha,Guy Den Ouden,1756391700
+2025-08-29,14487516,"Porto 2, Portugal",Challenger,,Frederico Ferreira Silva,Tiago Torres,1756396800
+2025-08-29,14487528,"Porto 2, Portugal",Challenger,,Nicolas Alvarez Varona,Gilles Arnaud Bailly,1756460700
+2025-08-29,14487520,"Porto 2, Portugal",Challenger,,Nikolas Sanchez Izquierdo,Alejandro Moro Canas,1756458000
+2025-08-29,14487490,"Como, Italy, Doubles",Challenger,,Martin A / Prihodko O,Cukierman D / Ingildsen J,1756389000
+2025-08-29,14487495,"Como, Italy, Doubles",Challenger,,Cornea V / Rodriguez Taverna S,Latinovic S / Ruehl T,1756386600
+2025-08-29,14487493,"Como, Italy, Doubles",Challenger,,Matuszewski P / Veldheer M,Barnat J / Duda F,1756383900
+2025-08-29,14487492,"Como, Italy, Doubles",Challenger,,Feldbausch K / Jacq G,Liutarevich I / Ricca G,1756385400
 2025-08-29,14487609,"Manacor, Spain, Doubles",Challenger,,Barroso Campos A / Soriano Barrera A,Alcantara F C / Loof T,1756388400
-2025-08-29,14487610,"Manacor, Spain, Doubles",Challenger,,Pichler D / Rodionov J,Gengel M / Poljak D,1756403100
-2025-08-29,14487565,"Zhangjiagang, China, Doubles",Challenger,,Isaro PR / Kaliyanda Poonacha N,Imamura M / Noguchi R,1756375200
-2025-08-29,14487563,"Zhangjiagang, China, Doubles",Challenger,,Castelnuovo L / Santillan A,Kusuhara Y / Uchida K,1756385700
-2025-08-29,14487525,"Porto 2, Portugal, Doubles",Challenger,,Hermans M / Poljicak M,Kielan S / Pieczonka F,1756380900
-2025-08-29,14487523,"Porto 2, Portugal, Doubles",Challenger,,Sabanov I / Sabanov M,Duncan S / Hands T,1756391400
-2025-08-29,14487514,"Porto 2, Portugal, Doubles",Challenger,,Merino A / Negritu C,Rocha F / Rocha H,1756391700
-2025-08-29,14558728,ITF M15 Allershausen Men,ITF Men,,Christian Wedel,Imanol Lopez Morillo,1756382400
-2025-08-29,14558729,ITF M15 Allershausen Men,ITF Men,,Sydney Zick,Adrian Oetzbach,1756377000
-2025-08-29,14558731,ITF M15 Allershausen Men,ITF Men,,Hazem Naw,Louis Van Herck,1756377900
-2025-08-29,14558730,ITF M15 Allershausen Men,ITF Men,,Mika Lipp,Flavio Bocci,1756388700
-2025-08-29,14558514,ITF M15 Bucharest 4 Men,ITF Men,,Uladzimir Ignatik,Cezar Cretu,1756372500
-2025-08-29,14559643,ITF M15 Budapest Men,ITF Men,,Pietro Fellin,Attila Dominik Boros,1756377000
-2025-08-29,14557793,ITF M15 Budapest Men,ITF Men,,Pietro Orlando Fellin,Attila Dominik Boros,1756387800
-2025-08-29,14558607,ITF M15 Budapest Men,ITF Men,,Seydina Andre,Liam Broady,1756373400
-2025-08-29,14553197,ITF M15 Cap d'Agde Men,ITF Men,,Amaury Raynel,Damien Salvestre,1756377900
-2025-08-29,14558743,ITF M15 Cap d'Agde Men,ITF Men,,Constantin Bittoun Kouzmine,Aaron Gil Garcia,1756369800
-2025-08-29,14553200,ITF M15 Cap d'Agde Men,ITF Men,,Tomas Rengel Sierra,Maxime Chazal,1756373400
-2025-08-29,14558751,ITF M15 Forli Men,ITF Men,,Daniele Rapagnetta,Lorenzo Beraldo,1756377900
-2025-08-29,14558750,ITF M15 Forli Men,ITF Men,,Kasra Rahmani,Pietro Romeo Scomparin,1756367100
-2025-08-29,14558752,ITF M15 Forli Men,ITF Men,,Giovanni Oradini,Jacopo Bilardo,1756375200
-2025-08-29,14558753,ITF M15 Forli Men,ITF Men,,Samuele Pieri,Nicola Rispoli,1756386000
-2025-08-29,14558547,ITF M15 Monastir 34 Men,ITF Men,,Mohamed Nazim Makhlouf,Samir Hamza Reguig,1756369800
-2025-08-29,14558545,ITF M15 Monastir 34 Men,ITF Men,,Nicolas Jadoun,Bogdan Seleznev,1756368000
+2025-08-29,14487610,"Manacor, Spain, Doubles",Challenger,,Pichler D / Rodionov J,Gengel M / Poljak D,1756398600
+2025-08-29,14487563,"Zhangjiagang, China, Doubles",Challenger,,Castelnuovo L / Santillan A,Kusuhara Y / Uchida K,1756382400
+2025-08-29,14487565,"Zhangjiagang, China, Doubles",Challenger,,Isaro PR / Kaliyanda Poonacha N,Imamura M / Noguchi R,1756381800
+2025-08-29,14487564,"Zhangjiagang, China, Doubles",Challenger,,Castelnuovo L / Santillan A,Nam Ji / Yuzuki T,1756458300
+2025-08-29,14487525,"Porto 2, Portugal, Doubles",Challenger,,Hermans M / Poljicak M,Kielan S / Pieczonka F,1756383900
+2025-08-29,14487523,"Porto 2, Portugal, Doubles",Challenger,,Sabanov I / Sabanov M,Duncan S / Hands T,1756398000
+2025-08-29,14487514,"Porto 2, Portugal, Doubles",Challenger,,Merino A / Negritu C,Rocha F / Rocha H,1756389300
+2025-08-29,14558728,ITF M15 Allershausen Men,ITF Men,,Christian Wedel,Imanol Lopez Morillo,1756386000
+2025-08-29,14558729,ITF M15 Allershausen Men,ITF Men,,Sydney Zick,Adrian Oetzbach,1756370700
+2025-08-29,14558731,ITF M15 Allershausen Men,ITF Men,,Hazem Naw,Louis Van Herck,1756371600
+2025-08-29,14558730,ITF M15 Allershausen Men,ITF Men,,Mika Lipp,Flavio Bocci,1756394100
+2025-08-29,14558514,ITF M15 Bucharest 4 Men,ITF Men,,Uladzimir Ignatik,Cezar Cretu,1756377900
+2025-08-29,14559643,ITF M15 Budapest Men,ITF Men,,Pietro Fellin,Attila Dominik Boros,1756385100
+2025-08-29,14557793,ITF M15 Budapest Men,ITF Men,,Pietro Orlando Fellin,Attila Dominik Boros,1756384200
+2025-08-29,14558607,ITF M15 Budapest Men,ITF Men,,Seydina Andre,Liam Broady,1756386900
+2025-08-29,14553197,ITF M15 Cap d'Agde Men,ITF Men,,Amaury Raynel,Damien Salvestre,1756368000
+2025-08-29,14558743,ITF M15 Cap d'Agde Men,ITF Men,,Constantin Bittoun Kouzmine,Aaron Gil Garcia,1756374300
+2025-08-29,14553200,ITF M15 Cap d'Agde Men,ITF Men,,Tomas Rengel Sierra,Maxime Chazal,1756374300
+2025-08-29,14558751,ITF M15 Forli Men,ITF Men,,Daniele Rapagnetta,Lorenzo Beraldo,1756366200
+2025-08-29,14558750,ITF M15 Forli Men,ITF Men,,Kasra Rahmani,Pietro Romeo Scomparin,1756371600
+2025-08-29,14558752,ITF M15 Forli Men,ITF Men,,Giovanni Oradini,Jacopo Bilardo,1756386000
+2025-08-29,14558753,ITF M15 Forli Men,ITF Men,,Samuele Pieri,Nicola Rispoli,1756371600
+2025-08-29,14558547,ITF M15 Monastir 34 Men,ITF Men,,Mohamed Nazim Makhlouf,Samir Hamza Reguig,1756384200
+2025-08-29,14558545,ITF M15 Monastir 34 Men,ITF Men,,Nicolas Jadoun,Bogdan Seleznev,1756376100
 2025-08-29,14558546,ITF M15 Monastir 34 Men,ITF Men,,Stephane Pierre-Jo Kamendje,Maxence Rivet,1756383300
-2025-08-29,14558770,ITF M15 Vienna Men,ITF Men,,Radovan Michalik,Aleksandr Braynin,1756376100
-2025-08-29,14558771,ITF M15 Vienna Men,ITF Men,,Alen Mujakic,Patrick Jozwicki,1756380600
-2025-08-29,14558404,ITF M25 Oldenzaal Men,ITF Men,,John Sperle,Eric Vanshelboim,1756369800
+2025-08-29,14558770,ITF M15 Vienna Men,ITF Men,,Radovan Michalik,Aleksandr Braynin,1756380600
+2025-08-29,14558771,ITF M15 Vienna Men,ITF Men,,Alen Mujakic,Patrick Jozwicki,1756387800
+2025-08-29,14558404,ITF M25 Oldenzaal Men,ITF Men,,John Sperle,Eric Vanshelboim,1756370700
 2025-08-29,14558913,ITF M25 Oldenzaal Men,ITF Men,,Buvaysar Gadamauri,Kylian Collignon,1756387800
-2025-08-29,14558445,ITF M25 Oviedo Men,ITF Men,,Carlos López Montagud,Javier Barranco Cosano,1756461600
-2025-08-29,14558442,ITF M25 Oviedo Men,ITF Men,,Gerard Campana Lee,P. Vives Marcos,1756458900
-2025-08-29,14558444,ITF M25 Oviedo Men,ITF Men,,Lorenzo Giustino,Ivan Marrero Curbelo,1756445400
-2025-08-29,14558443,ITF M25 Oviedo Men,ITF Men,,Michiel De Krom,Miguel Damas,1756448100
-2025-08-29,14562117,ITF M25 Taipei 2 Men,ITF Men,,Dane Sweeny,Soonwoo Kwon,1756434600
-2025-08-29,14562118,ITF M25 Taipei 2 Men,ITF Men,,Matthew Dellavedova,Yanki Erel,1756431000
-2025-08-29,14562407,ITF M25 Taipei 2 Men,ITF Men,,Yuki Mochizuki,Charles Broom,1756436400
-2025-08-29,14558367,ITF M25 Trelew Men,ITF Men,,Fernando Cavallo,Gonzalo Villanueva,1756377900
-2025-08-29,14558911,ITF M25 Trelew Men,ITF Men,,Hernan Casanova,Lautaro Agustin Falabella,1756395000
-2025-08-29,14559331,ITF M25 Trelew Men,ITF Men,,Juan Manuel La Serna,Santiago De la Fuente,1756390500
+2025-08-29,14558445,ITF M25 Oviedo Men,ITF Men,,Carlos López Montagud,Javier Barranco Cosano,1756451700
+2025-08-29,14558442,ITF M25 Oviedo Men,ITF Men,,Gerard Campana Lee,P. Vives Marcos,1756455300
+2025-08-29,14558444,ITF M25 Oviedo Men,ITF Men,,Lorenzo Giustino,Ivan Marrero Curbelo,1756457100
+2025-08-29,14558443,ITF M25 Oviedo Men,ITF Men,,Michiel De Krom,Miguel Damas,1756458000
+2025-08-29,14562117,ITF M25 Taipei 2 Men,ITF Men,,Dane Sweeny,Soonwoo Kwon,1756435500
+2025-08-29,14562118,ITF M25 Taipei 2 Men,ITF Men,,Matthew Dellavedova,Yanki Erel,1756432800
+2025-08-29,14564354,ITF M25 Taipei 2 Men,ITF Men,,Yan Cheng Chen,Ryuki Matsuda,1756431900
+2025-08-29,14562407,ITF M25 Taipei 2 Men,ITF Men,,Yuki Mochizuki,Charles Broom,1756423800
+2025-08-29,14558367,ITF M25 Trelew Men,ITF Men,,Fernando Cavallo,Gonzalo Villanueva,1756395000
+2025-08-29,14558911,ITF M25 Trelew Men,ITF Men,,Hernan Casanova,Lautaro Agustin Falabella,1756388700
+2025-08-29,14559331,ITF M25 Trelew Men,ITF Men,,Juan Manuel La Serna,Santiago De la Fuente,1756391400
 2025-08-29,14559007,ITF M25 Trelew Men,ITF Men,,Nicolas Villalon,Samir Banerjee,1756407600
-2025-08-29,14558891,ITF W15 Kaltenkirchen Women,ITF Women,,Claudia Gasparovic,Tamila Gadamauri,1756380600
+2025-08-29,14558891,ITF W15 Kaltenkirchen Women,ITF Women,,Claudia Gasparovic,Tamila Gadamauri,1756379700
 2025-08-29,14558893,ITF W15 Kaltenkirchen Women,ITF Women,,Filippa Stieg,Marie Mettraux,1756370700
-2025-08-29,14558897,ITF W15 Kaltenkirchen Women,ITF Women,,Liel Rothensteiner,Polina Skliar,1756387800
-2025-08-29,14558896,ITF W15 Kaltenkirchen Women,ITF Women,,Marta Soriano Santiago,Julia Victoria Rennert,1756386900
-2025-08-29,14558892,ITF W15 Kaltenkirchen Women,ITF Women,,Phillippa Preugschat,Andrea Petkovic,1756376100
-2025-08-29,14559659,ITF W15 Kaltenkirchen Women,ITF Women,,Phillippa Preugschat,Anna Petkovic,1756383300
+2025-08-29,14558897,ITF W15 Kaltenkirchen Women,ITF Women,,Liel Rothensteiner,Polina Skliar,1756374300
+2025-08-29,14558896,ITF W15 Kaltenkirchen Women,ITF Women,,Marta Soriano Santiago,Julia Victoria Rennert,1756374300
+2025-08-29,14558892,ITF W15 Kaltenkirchen Women,ITF Women,,Phillippa Preugschat,Andrea Petkovic,1756373400
+2025-08-29,14559659,ITF W15 Kaltenkirchen Women,ITF Women,,Phillippa Preugschat,Anna Petkovic,1756382400
 2025-08-29,14558890,ITF W15 Kaltenkirchen Women,ITF Women,,Tessa Johanna Brockmann,Philippa Faerber,1756371600
-2025-08-29,14558894,ITF W15 Kaltenkirchen Women,ITF Women,,Barbora Michalkova,Laura Böhner,1756383300
-2025-08-29,14558895,ITF W15 Kaltenkirchen Women,ITF Women,,Johanna Silva,Ella Haavisto,1756386000
-2025-08-29,14558874,ITF W15 Monastir 33 Women,ITF Women,,Carolyn Ansari,Sofia Alekseeva,1756374300
-2025-08-29,14558877,ITF W15 Monastir 33 Women,ITF Women,,Caterina Odorizzi,Clarissa Blomqvist,1756366200
-2025-08-29,14558876,ITF W15 Monastir 33 Women,ITF Women,,Lan Mi,Sasha Natalie Chimedza,1756368900
-2025-08-29,14552703,ITF M15 Allershausen Men Doubles,ITF Men,,Hohmann R / van Herck L,Thurner D / Thurner N,1756388700
-2025-08-29,14558732,ITF M15 Allershausen Men Doubles,ITF Men,,Reinhard B J / Sickenberger T,Oetzbach A / Schifris J,1756380600
-2025-08-29,14559653,ITF M15 Allershausen Men Doubles,ITF Men,,Reinhard B J / Sickenberger T,Oetzbach A / Schiavetti P,1756382400
-2025-08-29,14558522,ITF M15 Bucharest 4 Men Doubles,ITF Men,,Farjat T / Tenti F,Chirita I A / Guna R,1756373400
-2025-08-29,14558523,ITF M15 Bucharest 4 Men Doubles,ITF Men,,Andreescu S A / Cazacu D N,Bellifemine A / Pieleanu R T,1756380600
-2025-08-29,14557925,ITF M15 Budapest Men Doubles,ITF Men,,Maggs A / Sallay P,Castagnola L / Fondriest M,1756373400
-2025-08-29,14557936,ITF M15 Budapest Men Doubles,ITF Men,,Efstathiou M / Neos E,Ambarzumjan E / Campbell N,1756380600
-2025-08-29,14557937,ITF M15 Budapest Men Doubles,ITF Men,,Keki M / Voros M,Fuele M / Madarasz G,1756395000
-2025-08-29,14557938,ITF M15 Budapest Men Doubles,ITF Men,,Kisantal B / Makk P,Hurrion M / Summers M,1756391400
-2025-08-29,14558746,ITF M15 Cap d'Agde Men Doubles,ITF Men,,Beauge M / Bouquet L,Paganetti V / Ruscica A,1756385100
-2025-08-29,14558745,ITF M15 Cap d'Agde Men Doubles,ITF Men,,Garcian A / Ghazouani Durand Y,Kaliterna A / Verthaimer I,1756379700
-2025-08-29,14558747,ITF M15 Cap d'Agde Men Doubles,ITF Men,,Krizan R / Laukys T,Pietri B / Scaglia M,1756393200
-2025-08-29,14558748,ITF M15 Cap d'Agde Men Doubles,ITF Men,,Lhomond I / van Donselaar F,Bouchelaghem C / Covato M,1756381500
-2025-08-29,14558754,ITF M15 Forli Men Doubles,ITF Men,,Badini S / Scomparin P R,Rahmani K / Rapagnetta D,1756387800
-2025-08-29,14558755,ITF M15 Forli Men Doubles,ITF Men,,Bilardo J / Ciavarella N,Beraldo L / Comino L,1756391400
-2025-08-29,14560796,ITF M15 Maanshan 7 Men Doubles,ITF Men,,Woo Cho S / Yang Z,Chen Y C / Wang K-I,1756403100
-2025-08-29,14558591,ITF M15 Monastir 34 Men Doubles,ITF Men,,Allen L / McLennaghan W,Forcano I / Murgett F,1756377900
-2025-08-29,14558592,ITF M15 Monastir 34 Men Doubles,ITF Men,,Chopra K / Flores J,Leather J / Stice T,1756387800
-2025-08-29,14558593,ITF M15 Monastir 34 Men Doubles,ITF Men,,Gretskiy I / Robert N,Molder M / Troost S,1756384200
-2025-08-29,14558594,ITF M15 Monastir 34 Men Doubles,ITF Men,,Nagoudi A / Sahtali T,Oueslati M A / Snoussi I,1756392300
-2025-08-29,14558779,ITF M15 Vienna Men Doubles,ITF Men,,Casso A / Rodriguez-Pace R,Kellovsky D / Stolarik S,1756386000
-2025-08-29,14558782,ITF M15 Vienna Men Doubles,ITF Men,,Graski J / Oberleitner N,Haliak M / Lazic M,1756383300
-2025-08-29,14558780,ITF M15 Vienna Men Doubles,ITF Men,,Berenz B / Fischer F,Dean T / Tripathi A,1756379700
-2025-08-29,14558781,ITF M15 Vienna Men Doubles,ITF Men,,Hipfl N / Ramskogler G,Pinter P L / Wagner A,1756395000
-2025-08-29,14558450,ITF M25 Oviedo Men Doubles,ITF Men,,Almazan Valiente I / Lazaro Juncadella M,Vives Marcos P / Winter López B,1756459800
-2025-08-29,14558451,ITF M25 Oviedo Men Doubles,ITF Men,,Izquierdo Luque R / Marrero Curbelo I,Dominguez Alonso J / Turriziani Alvarez A,1756457100
-2025-08-29,14559626,ITF M25 Trelew Men Doubles,ITF Men,,Bancalari A / Villalon Valdes N,Bruna N / Salvo M M,1756382400
-2025-08-29,14551775,ITF M25 Trelew Men Doubles,ITF Men,,Banerjee S / Schachter N,Del Pino M / La Serna J M,1756385100
-2025-08-29,14559627,ITF M25 Trelew Men Doubles,ITF Men,,Basel V / Ribero F,Fernandez B / Kirchheimer S,1756386900
-2025-08-29,14561170,ITF M25 Trelew Men Doubles,ITF Men,,Bancalari A / Villalon N,Bruna N / Salvo M M,1756413000
-2025-08-29,14559629,ITF M25 Trelew Men Doubles,ITF Men,,Casanova H / Zarate C M,de la Fuente S / Falabella L A,1756414800
-2025-08-29,14558857,ITF W15 Ankara 2 Women Doubles,ITF Women,,Anane S / Saner J,Herazo Gonzalez M / Zaparyniuk A,1756379700
-2025-08-29,14558858,ITF W15 Ankara 2 Women Doubles,ITF Women,,Atay S / Lachinova A,Mdlulwa W / Mdlulwa W,1756382400
-2025-08-29,14558859,ITF W15 Ankara 2 Women Doubles,ITF Women,,Easwaramurthi A / Khayndrava I,Evtimova D / Vaissaud D,1756393200
-2025-08-29,14558860,ITF W15 Ankara 2 Women Doubles,ITF Women,,Golovina M / Kuzmova K,Aydemir D / Farzami M,1756392300
-2025-08-29,14558907,ITF W15 Kaltenkirchen Women Doubles,ITF Women,,Coppez K / Gadamauri T,Mettraux M / Petretic L,1756397700
-2025-08-29,14558908,ITF W15 Kaltenkirchen Women Doubles,ITF Women,,Petkovic A / Pribylova A,Brockmann T / Preugschat P,1756390500
-2025-08-29,14558879,ITF W15 Monastir 33 Women Doubles,ITF Women,,John-Baptiste L / Milovanovic E,Kashyap H / Zaremba M,1756392300
-2025-08-29,14558881,ITF W15 Monastir 33 Women Doubles,ITF Women,,McBride J / Poling L,Mihail D M / Verster N,1756388700
-2025-08-29,14558882,ITF W15 Monastir 33 Women Doubles,ITF Women,,Rassil R / Tahiri M,Odorizzi C / Osterreicher M,1756386000
-2025-08-29,14558880,ITF W15 Monastir 33 Women Doubles,ITF Women,,Soussi L / Van Poppel E,Bosman C / Veldman K,1756391400
-2025-08-29,14558824,ITF W35 Trieste Women Doubles,ITF Women,,Basiletti N / Maduzzi G,De Stefano S / Mazzola A,1756449900
-2025-08-29,14558825,ITF W35 Trieste Women Doubles,ITF Women,,Corvi A / Ruggeri J,Alvisi E / Chiesa E,1756460700
-2025-08-29,14558827,ITF W35 Verbier 2 Women Doubles,ITF Women,,Dencheva R / Stankiewicz M,Lemaitre T / Smith T N,1756462500
-2025-08-29,14558828,ITF W35 Verbier 2 Women Doubles,ITF Women,,Grammatikopoulou V / Marcinkevica D,Vogt M / Voracek E M,1756451700
+2025-08-29,14558894,ITF W15 Kaltenkirchen Women,ITF Women,,Barbora Michalkova,Laura Böhner,1756377900
+2025-08-29,14558895,ITF W15 Kaltenkirchen Women,ITF Women,,Johanna Silva,Ella Haavisto,1756381500
+2025-08-29,14564321,ITF W15 Luan 7 Women,ITF Women,,Jana Kolodynska,Kayo Nishimura,1756427400
+2025-08-29,14564323,ITF W15 Luan 7 Women,ITF Women,,Jiaqi Wang,Yufei Ren,1756433700
+2025-08-29,14564322,ITF W15 Luan 7 Women,ITF Women,,Meng Yi Chen,Yanan Hou,1756438200
+2025-08-29,14564333,ITF W15 Luan 7 Women,ITF Women,,Shiho Tsujioka,Meiling Wang,1756421100
+2025-08-29,14558874,ITF W15 Monastir 33 Women,ITF Women,,Carolyn Ansari,Sofia Alekseeva,1756367100
+2025-08-29,14558877,ITF W15 Monastir 33 Women,ITF Women,,Caterina Odorizzi,Clarissa Blomqvist,1756369800
+2025-08-29,14558876,ITF W15 Monastir 33 Women,ITF Women,,Lan Mi,Sasha Natalie Chimedza,1756376100
+2025-08-29,14552703,ITF M15 Allershausen Men Doubles,ITF Men,,Hohmann R / van Herck L,Thurner D / Thurner N,1756385100
+2025-08-29,14558732,ITF M15 Allershausen Men Doubles,ITF Men,,Reinhard B J / Sickenberger T,Oetzbach A / Schifris J,1756376100
+2025-08-29,14559653,ITF M15 Allershausen Men Doubles,ITF Men,,Reinhard B J / Sickenberger T,Oetzbach A / Schiavetti P,1756378800
+2025-08-29,14558522,ITF M15 Bucharest 4 Men Doubles,ITF Men,,Farjat T / Tenti F,Chirita I A / Guna R,1756379700
+2025-08-29,14558523,ITF M15 Bucharest 4 Men Doubles,ITF Men,,Andreescu S A / Cazacu D N,Bellifemine A / Pieleanu R T,1756396800
+2025-08-29,14557925,ITF M15 Budapest Men Doubles,ITF Men,,Maggs A / Sallay P,Castagnola L / Fondriest M,1756381500
+2025-08-29,14557936,ITF M15 Budapest Men Doubles,ITF Men,,Efstathiou M / Neos E,Ambarzumjan E / Campbell N,1756386900
+2025-08-29,14557937,ITF M15 Budapest Men Doubles,ITF Men,,Keki M / Voros M,Fuele M / Madarasz G,1756385100
+2025-08-29,14557938,ITF M15 Budapest Men Doubles,ITF Men,,Kisantal B / Makk P,Hurrion M / Summers M,1756386000
+2025-08-29,14558746,ITF M15 Cap d'Agde Men Doubles,ITF Men,,Beauge M / Bouquet L,Paganetti V / Ruscica A,1756384200
+2025-08-29,14558745,ITF M15 Cap d'Agde Men Doubles,ITF Men,,Garcian A / Ghazouani Durand Y,Kaliterna A / Verthaimer I,1756386900
+2025-08-29,14558747,ITF M15 Cap d'Agde Men Doubles,ITF Men,,Krizan R / Laukys T,Pietri B / Scaglia M,1756385100
+2025-08-29,14558748,ITF M15 Cap d'Agde Men Doubles,ITF Men,,Lhomond I / van Donselaar F,Bouchelaghem C / Covato M,1756385100
+2025-08-29,14558754,ITF M15 Forli Men Doubles,ITF Men,,Badini S / Scomparin P R,Rahmani K / Rapagnetta D,1756389600
+2025-08-29,14558755,ITF M15 Forli Men Doubles,ITF Men,,Bilardo J / Ciavarella N,Beraldo L / Comino L,1756378800
+2025-08-29,14560796,ITF M15 Maanshan 7 Men Doubles,ITF Men,,Woo Cho S / Yang Z,Chen Y C / Wang K-I,1756396800
+2025-08-29,14558591,ITF M15 Monastir 34 Men Doubles,ITF Men,,Allen L / McLennaghan W,Forcano I / Murgett F,1756380600
+2025-08-29,14558592,ITF M15 Monastir 34 Men Doubles,ITF Men,,Chopra K / Flores J,Leather J / Stice T,1756375200
+2025-08-29,14558593,ITF M15 Monastir 34 Men Doubles,ITF Men,,Gretskiy I / Robert N,Molder M / Troost S,1756379700
+2025-08-29,14558594,ITF M15 Monastir 34 Men Doubles,ITF Men,,Nagoudi A / Sahtali T,Oueslati M A / Snoussi I,1756377000
+2025-08-29,14558779,ITF M15 Vienna Men Doubles,ITF Men,,Casso A / Rodriguez-Pace R,Kellovsky D / Stolarik S,1756371600
+2025-08-29,14558782,ITF M15 Vienna Men Doubles,ITF Men,,Graski J / Oberleitner N,Haliak M / Lazic M,1756386900
+2025-08-29,14558780,ITF M15 Vienna Men Doubles,ITF Men,,Berenz B / Fischer F,Dean T / Tripathi A,1756390500
+2025-08-29,14558781,ITF M15 Vienna Men Doubles,ITF Men,,Hipfl N / Ramskogler G,Pinter P L / Wagner A,1756392300
+2025-08-29,14558450,ITF M25 Oviedo Men Doubles,ITF Men,,Almazan Valiente I / Lazaro Juncadella M,Vives Marcos P / Winter López B,1756463400
+2025-08-29,14558451,ITF M25 Oviedo Men Doubles,ITF Men,,Izquierdo Luque R / Marrero Curbelo I,Dominguez Alonso J / Turriziani Alvarez A,1756451700
+2025-08-29,14564358,ITF M25 Taipei 2 Men Doubles,ITF Men,,Chung Y S / Mochizuki Y,Ayeni A / Cook E,1756439100
+2025-08-29,14564359,ITF M25 Taipei 2 Men Doubles,ITF Men,,Lee K / Lin N H,Ichikawa T / Matsuda R,1756440900
+2025-08-29,14559626,ITF M25 Trelew Men Doubles,ITF Men,,Bancalari A / Villalon Valdes N,Bruna N / Salvo M M,1756388700
+2025-08-29,14551775,ITF M25 Trelew Men Doubles,ITF Men,,Banerjee S / Schachter N,Del Pino M / La Serna J M,1756380600
+2025-08-29,14559627,ITF M25 Trelew Men Doubles,ITF Men,,Basel V / Ribero F,Fernandez B / Kirchheimer S,1756377000
+2025-08-29,14561170,ITF M25 Trelew Men Doubles,ITF Men,,Bancalari A / Villalon N,Bruna N / Salvo M M,1756408500
+2025-08-29,14559629,ITF M25 Trelew Men Doubles,ITF Men,,Casanova H / Zarate C M,de la Fuente S / Falabella L A,1756415700
+2025-08-29,14558857,ITF W15 Ankara 2 Women Doubles,ITF Women,,Anane S / Saner J,Herazo Gonzalez M / Zaparyniuk A,1756381500
+2025-08-29,14558858,ITF W15 Ankara 2 Women Doubles,ITF Women,,Atay S / Lachinova A,Mdlulwa W / Mdlulwa W,1756388700
+2025-08-29,14558859,ITF W15 Ankara 2 Women Doubles,ITF Women,,Easwaramurthi A / Khayndrava I,Evtimova D / Vaissaud D,1756385100
+2025-08-29,14558860,ITF W15 Ankara 2 Women Doubles,ITF Women,,Golovina M / Kuzmova K,Aydemir D / Farzami M,1756390500
+2025-08-29,14558907,ITF W15 Kaltenkirchen Women Doubles,ITF Women,,Coppez K / Gadamauri T,Mettraux M / Petretic L,1756384200
+2025-08-29,14558908,ITF W15 Kaltenkirchen Women Doubles,ITF Women,,Petkovic A / Pribylova A,Brockmann T / Preugschat P,1756384200
+2025-08-29,14558879,ITF W15 Monastir 33 Women Doubles,ITF Women,,John-Baptiste L / Milovanovic E,Kashyap H / Zaremba M,1756386000
+2025-08-29,14558881,ITF W15 Monastir 33 Women Doubles,ITF Women,,McBride J / Poling L,Mihail D M / Verster N,1756386900
+2025-08-29,14558882,ITF W15 Monastir 33 Women Doubles,ITF Women,,Rassil R / Tahiri M,Odorizzi C / Osterreicher M,1756379700
+2025-08-29,14558880,ITF W15 Monastir 33 Women Doubles,ITF Women,,Soussi L / Van Poppel E,Bosman C / Veldman K,1756384200
+2025-08-29,14558824,ITF W35 Trieste Women Doubles,ITF Women,,Basiletti N / Maduzzi G,De Stefano S / Mazzola A,1756457100
+2025-08-29,14558825,ITF W35 Trieste Women Doubles,ITF Women,,Corvi A / Ruggeri J,Alvisi E / Chiesa E,1756459800
+2025-08-29,14558827,ITF W35 Verbier 2 Women Doubles,ITF Women,,Dencheva R / Stankiewicz M,Lemaitre T / Smith T N,1756446300
+2025-08-29,14558828,ITF W35 Verbier 2 Women Doubles,ITF Women,,Grammatikopoulou V / Marcinkevica D,Vogt M / Voracek E M,1756449900
 2025-08-29,14558806,ITF W50 Bytom Women Doubles,ITF Women,,Feistel G / Hindova D,Gamiz A / Vedder E,1756367100
-2025-08-29,14558795,ITF W50 Bytom Women Doubles,ITF Women,,Cortez Llorca L / Zavatska K,Brune A / Firman A,1756387800
-2025-08-29,14558818,ITF W50 Oldenzaal Women Doubles,ITF Women,,Daems J / Schmidt A,Noha Akugue N / Oz I,1756395900
-2025-08-29,14558819,ITF W50 Oldenzaal Women Doubles,ITF Women,,Ebeling Koning L / Van Den Broek I,Kazionova E / Tikhonova A,1756391400
-2025-08-29,14512827,"UTR PTT Bali Men +H 02, Group A",UTR Men,,Alexander Klintcharov,Tegar Abdi Satrio Wibowo,1756439700
-2025-08-29,14512856,"UTR PTT Bali Men +H 02, Group A",UTR Men,,Rodion Malmygin,Stefan Menichella,1756432500
-2025-08-29,14512960,"UTR PTT Bali Men +H 02, Group B",UTR Men,,Eric Tripathi,Renaldi Aqila A Salim,1756429200
-2025-08-29,14512955,"UTR PTT Bali Men +H 02, Group B",UTR Men,,Stefan Storch,Anthony Susanto,1756441800
-2025-08-29,14512964,"UTR PTT Bali Men +H 02, Group C",UTR Men,,Diogo Morais,Maan Kesharwani,1756442400
-2025-08-29,14512983,"UTR PTT Bali Men +H 02, Group C",UTR Men,,Vadym Konovchuk,Yash Yadav,1756447800
-2025-08-29,14512968,"UTR PTT Bali Men +H 02, Group D",UTR Men,,Cian Maguire,Ajay Malik,1756451700
-2025-08-29,14512966,"UTR PTT Bali Men +H 02, Group D",UTR Men,,Joao Graca,Patricio Alvarado,1756450800
+2025-08-29,14558795,ITF W50 Bytom Women Doubles,ITF Women,,Cortez Llorca L / Zavatska K,Brune A / Firman A,1756394100
+2025-08-29,14558818,ITF W50 Oldenzaal Women Doubles,ITF Women,,Daems J / Schmidt A,Noha Akugue N / Oz I,1756381500
+2025-08-29,14558819,ITF W50 Oldenzaal Women Doubles,ITF Women,,Ebeling Koning L / Van Den Broek I,Kazionova E / Tikhonova A,1756395000
+2025-08-29,14512827,"UTR PTT Bali Men +H 02, Group A",UTR Men,,Alexander Klintcharov,Tegar Abdi Satrio Wibowo,1756434300
+2025-08-29,14512856,"UTR PTT Bali Men +H 02, Group A",UTR Men,,Rodion Malmygin,Stefan Menichella,1756446000
+2025-08-29,14512960,"UTR PTT Bali Men +H 02, Group B",UTR Men,,Eric Tripathi,Renaldi Aqila A Salim,1756424700
+2025-08-29,14512955,"UTR PTT Bali Men +H 02, Group B",UTR Men,,Stefan Storch,Anthony Susanto,1756437300
+2025-08-29,14512964,"UTR PTT Bali Men +H 02, Group C",UTR Men,,Diogo Morais,Maan Kesharwani,1756448700
+2025-08-29,14512983,"UTR PTT Bali Men +H 02, Group C",UTR Men,,Vadym Konovchuk,Yash Yadav,1756455000
+2025-08-29,14512968,"UTR PTT Bali Men +H 02, Group D",UTR Men,,Cian Maguire,Ajay Malik,1756439100
+2025-08-29,14512966,"UTR PTT Bali Men +H 02, Group D",UTR Men,,Joao Graca,Patricio Alvarado,1756441800
 2025-08-29,14520559,"UTR PTT Boise Men 02, Group A",UTR Men,,Karl Poling,Julius Seifert,1756415700
-2025-08-29,14520555,"UTR PTT Boise Men 02, Group A",UTR Men,,Liam Spiers,Lukas Velik,1756410900
-2025-08-29,14520539,"UTR PTT Boise Men 02, Group A",UTR Men,,Adam Duda,Julius Seifert,1756480500
-2025-08-29,14520529,"UTR PTT Boise Men 02, Group A",UTR Men,,Karl Poling,Lukas Velik,1756476000
-2025-08-29,14520531,"UTR PTT Boise Men 02, Group B",UTR Men,,Tannor Binder,Theo Coats,1756390500
-2025-08-29,14520558,"UTR PTT Boise Men 02, Group B",UTR Men,,Andre Alcantara,Taiyo Kurata,1756392900
-2025-08-29,14520534,"UTR PTT Boise Men 02, Group B",UTR Men,,Filip Soderqvist,Theo Coats,1756475100
-2025-08-29,14520547,"UTR PTT Boise Men 02, Group B",UTR Men,,Tannor Binder,Taiyo Kurata,1756489500
-2025-08-29,14520548,"UTR PTT Boise Men 02, Group C",UTR Men,,Idriss Haddouch,Avery Tallakson,1756413000
-2025-08-29,14520536,"UTR PTT Boise Men 02, Group C",UTR Men,,John Chin,Ryoma Mishiro,1756415400
-2025-08-29,14520523,"UTR PTT Boise Men 02, Group C",UTR Men,,Idriss Haddouch,Ryoma Mishiro,1756490400
-2025-08-29,14520524,"UTR PTT Boise Men 02, Group C",UTR Men,,Vincent Yang,Avery Tallakson,1756484100
-2025-08-29,14520533,"UTR PTT Boise Men 02, Group D",UTR Men,,Dylan Charlap,Stewart Aronson,1756394100
-2025-08-29,14540724,"UTR PTT Boise Men 02, Group D",UTR Men,,Samuel Rovai,Brayden Tallakson,1756402800
-2025-08-29,14520541,"UTR PTT Boise Men 02, Group D",UTR Men,,Carson Baker,Stewart Aronson,1756488600
-2025-08-29,14540721,"UTR PTT Boise Men 02, Group D",UTR Men,,Dylan Charlap,Brayden Tallakson,1756489500
-2025-08-29,14560196,"UTR PTT Gold Coast Men 02, 1-4 Playoff",UTR Men,,Matthew Burton,Zane Stevens,1756422000
-2025-08-29,14560195,"UTR PTT Gold Coast Men 02, 1-4 Playoff",UTR Men,,Scott Jones,Noah Brownrigg,1756429800
-2025-08-29,14560291,"UTR PTT Gold Coast Men 02, 5-8 Playoff",UTR Men,,Lachlan McFadzean,Chase Zhao,1756422600
-2025-08-29,14560290,"UTR PTT Gold Coast Men 02, 5-8 Playoff",UTR Men,,Sam Oster,Zachary Adam-Gedge,1756435500
-2025-08-29,14560376,"UTR PTT Gold Coast Men 02, 9-12 Playoff",UTR Men,,Cameron Burton,Cade Birrell,1756423800
-2025-08-29,14560289,"UTR PTT Gold Coast Men 02, 9-12 Playoff",UTR Men,,Tomislav Edward Papac,Alexey Shtengelov,1756421400
-2025-08-29,14560350,"UTR PTT Gold Coast Men 02, 13-16 Playoff",UTR Men,,Ethan Connelly,Kuma Ito,1756418400
-2025-08-29,14560292,"UTR PTT Gold Coast Men 02, 13-16 Playoff",UTR Men,,Haruto Ishikawa,Kye Bennett,1756429800
-2025-08-29,14518490,"UTR PTT Knoxville Men 03, Group A",UTR Men,,Ashton Adesoro,Murilo Antunes Burckhardt,1756402800
-2025-08-29,14550141,"UTR PTT Knoxville Men 03, Group A",UTR Men,,Alexander Kotzen,Piotr Siekanowicz,1756411200
-2025-08-29,14518502,"UTR PTT Knoxville Men 03, Group A",UTR Men,,Alejandro Moreno,Murilo Antunes Burckhardt,1756480500
-2025-08-29,14518487,"UTR PTT Knoxville Men 03, Group A",UTR Men,,Ashton Adesoro,Piotr Siekanowicz,1756484100
-2025-08-29,14518492,"UTR PTT Knoxville Men 03, Group B",UTR Men,,Jose Garcia,Daniil Kakhniuk,1756398600
-2025-08-29,14518505,"UTR PTT Knoxville Men 03, Group B",UTR Men,,Aleksandr Kalinin,Ethan Muza,1756402800
-2025-08-29,14518493,"UTR PTT Knoxville Men 03, Group B",UTR Men,,Aleksandr Kalinin,Daniil Kakhniuk,1756477800
-2025-08-29,14518494,"UTR PTT Knoxville Men 03, Group B",UTR Men,,Alex Alvarez Moreno,Ethan Muza,1756488600
-2025-08-29,14527697,"UTR PTT Knoxville Men 03, Group C",UTR Men,,Rahul Sachdev,Adrien Jonah Abarca,1756397400
-2025-08-29,14518496,"UTR PTT Knoxville Men 03, Group C",UTR Men,,Alex Kuperstein,Jan Kobierski,1756406700
-2025-08-29,14527698,"UTR PTT Knoxville Men 03, Group C",UTR Men,,Rahul Sachdev,Jan Kobierski,1756477800
-2025-08-29,14518514,"UTR PTT Knoxville Men 03, Group C",UTR Men,,William Freshwater,Adrien Jonah Abarca,1756486800
-2025-08-29,14518501,"UTR PTT Knoxville Men 03, Group D",UTR Men,,Miles Groom,Lucas Bitzer,1756398600
-2025-08-29,14518489,"UTR PTT Knoxville Men 03, Group D",UTR Men,,Boruch Skierkier,Woohyuk Chang,1756406400
-2025-08-29,14518751,"UTR PTT Knoxville Men 03, Group D",UTR Men,,Arjun Prabhakar,Woohyuk Chang,1756481400
-2025-08-29,14518507,"UTR PTT Knoxville Men 03, Group D",UTR Men,,Boruch Skierkier,Lucas Bitzer,1756483200
-2025-08-29,14516739,"UTR PTT Olomouc Men 06, Group A",UTR Men,,Daniel Siniakov,Adam Jurajda,1756376400
-2025-08-29,14557483,"UTR PTT Olomouc Men 06, Group A",UTR Men,,Leonardo Mileikowsky,Sebastian Chodura,1756377900
-2025-08-29,14516773,"UTR PTT Olomouc Men 06, Group A",UTR Men,,Daniel Siniakov,Robert Rumler,1756456200
-2025-08-29,14557482,"UTR PTT Olomouc Men 06, Group A",UTR Men,,Daniel Siniakov,Sebastian Chodura,1756457100
-2025-08-29,14516772,"UTR PTT Olomouc Men 06, Group A",UTR Men,,Elisha Thornton,Adam Jurajda,1756452600
-2025-08-29,14516742,"UTR PTT Olomouc Men 06, Group A",UTR Men,,Leonardo Mileikowsky,Robert Rumler,1756457100
-2025-08-29,14516756,"UTR PTT Olomouc Men 06, Group B",UTR Men,,Dominik Recek,Piotr Galus,1756378500
-2025-08-29,14516769,"UTR PTT Olomouc Men 06, Group B",UTR Men,,Dominik Recek,Patrik Homola,1756457100
-2025-08-29,14516761,"UTR PTT Olomouc Men 06, Group B",UTR Men,,Vitek Horak,Piotr Galus,1756452600
-2025-08-29,14516766,"UTR PTT Olomouc Men 06, Group C",UTR Men,,Stepan Baum,David Schwarc,1756380600
-2025-08-29,14553099,"UTR PTT Olomouc Men 06, Group C",UTR Men,,Leo Pade,David Schwarc,1756454400
-2025-08-29,14516750,"UTR PTT Olomouc Men 06, Group C",UTR Men,,Stepan Baum,David Knesl,1756450800
-2025-08-29,14516771,"UTR PTT Olomouc Men 06, Group D",UTR Men,,Nikolaj Katic,Gabriel Matuszewski,1756458000
-2025-08-29,14516777,"UTR PTT Olomouc Men 06, Group D",UTR Men,,Sebastian Prechtel,Egor Matvievici,1756459800
-2025-08-29,14558653,"UTR PTT San Diego Men 02, Group A",UTR Men,,Colson Wells,Santiago Giamichelle,1756485000
+2025-08-29,14520555,"UTR PTT Boise Men 02, Group A",UTR Men,,Liam Spiers,Lukas Velik,1756411800
+2025-08-29,14520539,"UTR PTT Boise Men 02, Group A",UTR Men,,Adam Duda,Julius Seifert,1756487700
+2025-08-29,14520529,"UTR PTT Boise Men 02, Group A",UTR Men,,Karl Poling,Lukas Velik,1756492200
+2025-08-29,14520531,"UTR PTT Boise Men 02, Group B",UTR Men,,Tannor Binder,Theo Coats,1756404000
+2025-08-29,14520558,"UTR PTT Boise Men 02, Group B",UTR Men,,Andre Alcantara,Taiyo Kurata,1756398300
+2025-08-29,14520534,"UTR PTT Boise Men 02, Group B",UTR Men,,Filip Soderqvist,Theo Coats,1756485000
+2025-08-29,14520547,"UTR PTT Boise Men 02, Group B",UTR Men,,Tannor Binder,Taiyo Kurata,1756485900
+2025-08-29,14520548,"UTR PTT Boise Men 02, Group C",UTR Men,,Idriss Haddouch,Avery Tallakson,1756416600
+2025-08-29,14520536,"UTR PTT Boise Men 02, Group C",UTR Men,,John Chin,Ryoma Mishiro,1756417200
+2025-08-29,14520523,"UTR PTT Boise Men 02, Group C",UTR Men,,Idriss Haddouch,Ryoma Mishiro,1756481400
+2025-08-29,14520524,"UTR PTT Boise Men 02, Group C",UTR Men,,Vincent Yang,Avery Tallakson,1756485000
+2025-08-29,14520533,"UTR PTT Boise Men 02, Group D",UTR Men,,Dylan Charlap,Stewart Aronson,1756400400
+2025-08-29,14540724,"UTR PTT Boise Men 02, Group D",UTR Men,,Samuel Rovai,Brayden Tallakson,1756400100
+2025-08-29,14520541,"UTR PTT Boise Men 02, Group D",UTR Men,,Carson Baker,Stewart Aronson,1756479600
+2025-08-29,14540721,"UTR PTT Boise Men 02, Group D",UTR Men,,Dylan Charlap,Brayden Tallakson,1756488600
+2025-08-29,14560196,"UTR PTT Gold Coast Men 02, 1-4 Playoff",UTR Men,,Matthew Burton,Zane Stevens,1756428300
+2025-08-29,14560195,"UTR PTT Gold Coast Men 02, 1-4 Playoff",UTR Men,,Scott Jones,Noah Brownrigg,1756428000
+2025-08-29,14560291,"UTR PTT Gold Coast Men 02, 5-8 Playoff",UTR Men,,Lachlan McFadzean,Chase Zhao,1756417200
+2025-08-29,14560290,"UTR PTT Gold Coast Men 02, 5-8 Playoff",UTR Men,,Sam Oster,Zachary Adam-Gedge,1756437300
+2025-08-29,14560376,"UTR PTT Gold Coast Men 02, 9-12 Playoff",UTR Men,,Cameron Burton,Cade Birrell,1756413900
+2025-08-29,14560289,"UTR PTT Gold Coast Men 02, 9-12 Playoff",UTR Men,,Tomislav Edward Papac,Alexey Shtengelov,1756421100
+2025-08-29,14560292,"UTR PTT Gold Coast Men 02, 13-16 Playoff",UTR Men,,Haruto Ishikawa,Kye Bennett,1756353300
+2025-08-29,14560350,"UTR PTT Gold Coast Men 02, 13-16 Playoff",UTR Men,,Ethan Connelly,Kuma Ito,1756416600
+2025-08-29,14518490,"UTR PTT Knoxville Men 03, Group A",UTR Men,,Ashton Adesoro,Murilo Antunes Burckhardt,1756401000
+2025-08-29,14550141,"UTR PTT Knoxville Men 03, Group A",UTR Men,,Alexander Kotzen,Piotr Siekanowicz,1756413000
+2025-08-29,14518502,"UTR PTT Knoxville Men 03, Group A",UTR Men,,Alejandro Moreno,Murilo Antunes Burckhardt,1756472400
+2025-08-29,14518487,"UTR PTT Knoxville Men 03, Group A",UTR Men,,Ashton Adesoro,Piotr Siekanowicz,1756487700
+2025-08-29,14518492,"UTR PTT Knoxville Men 03, Group B",UTR Men,,Jose Garcia,Daniil Kakhniuk,1756401300
+2025-08-29,14518505,"UTR PTT Knoxville Men 03, Group B",UTR Men,,Aleksandr Kalinin,Ethan Muza,1756399200
+2025-08-29,14518493,"UTR PTT Knoxville Men 03, Group B",UTR Men,,Aleksandr Kalinin,Daniil Kakhniuk,1756485000
+2025-08-29,14518494,"UTR PTT Knoxville Men 03, Group B",UTR Men,,Alex Alvarez Moreno,Ethan Muza,1756485000
+2025-08-29,14527697,"UTR PTT Knoxville Men 03, Group C",UTR Men,,Rahul Sachdev,Adrien Jonah Abarca,1756402800
+2025-08-29,14518496,"UTR PTT Knoxville Men 03, Group C",UTR Men,,Alex Kuperstein,Jan Kobierski,1756405800
+2025-08-29,14527698,"UTR PTT Knoxville Men 03, Group C",UTR Men,,Rahul Sachdev,Jan Kobierski,1756487700
+2025-08-29,14518514,"UTR PTT Knoxville Men 03, Group C",UTR Men,,William Freshwater,Adrien Jonah Abarca,1756470600
+2025-08-29,14518501,"UTR PTT Knoxville Men 03, Group D",UTR Men,,Miles Groom,Lucas Bitzer,1756388700
+2025-08-29,14518489,"UTR PTT Knoxville Men 03, Group D",UTR Men,,Boruch Skierkier,Woohyuk Chang,1756410900
+2025-08-29,14518751,"UTR PTT Knoxville Men 03, Group D",UTR Men,,Arjun Prabhakar,Woohyuk Chang,1756477800
+2025-08-29,14518507,"UTR PTT Knoxville Men 03, Group D",UTR Men,,Boruch Skierkier,Lucas Bitzer,1756476000
+2025-08-29,14557483,"UTR PTT Olomouc Men 06, Group A",UTR Men,,Leonardo Mileikowsky,Sebastian Chodura,1756390200
+2025-08-29,14516739,"UTR PTT Olomouc Men 06, Group A",UTR Men,,Daniel Siniakov,Adam Jurajda,1756391100
+2025-08-29,14516773,"UTR PTT Olomouc Men 06, Group A",UTR Men,,Daniel Siniakov,Robert Rumler,1756452600
+2025-08-29,14557482,"UTR PTT Olomouc Men 06, Group A",UTR Men,,Daniel Siniakov,Sebastian Chodura,1756441800
+2025-08-29,14516772,"UTR PTT Olomouc Men 06, Group A",UTR Men,,Elisha Thornton,Adam Jurajda,1756449000
+2025-08-29,14516742,"UTR PTT Olomouc Men 06, Group A",UTR Men,,Leonardo Mileikowsky,Robert Rumler,1756448100
+2025-08-29,14516756,"UTR PTT Olomouc Men 06, Group B",UTR Men,,Dominik Recek,Piotr Galus,1756376100
+2025-08-29,14516769,"UTR PTT Olomouc Men 06, Group B",UTR Men,,Dominik Recek,Patrik Homola,1756459800
+2025-08-29,14516761,"UTR PTT Olomouc Men 06, Group B",UTR Men,,Vitek Horak,Piotr Galus,1756443600
+2025-08-29,14516766,"UTR PTT Olomouc Men 06, Group C",UTR Men,,Stepan Baum,David Schwarc,1756382700
+2025-08-29,14553099,"UTR PTT Olomouc Men 06, Group C",UTR Men,,Leo Pade,David Schwarc,1756453500
+2025-08-29,14516750,"UTR PTT Olomouc Men 06, Group C",UTR Men,,Stepan Baum,David Knesl,1756455300
+2025-08-29,14516771,"UTR PTT Olomouc Men 06, Group D",UTR Men,,Nikolaj Katic,Gabriel Matuszewski,1756443600
+2025-08-29,14516777,"UTR PTT Olomouc Men 06, Group D",UTR Men,,Sebastian Prechtel,Egor Matvievici,1756449000
+2025-08-29,14558653,"UTR PTT San Diego Men 02, Group A",UTR Men,,Colson Wells,Santiago Giamichelle,1756482300
 2025-08-29,14558654,"UTR PTT San Diego Men 02, Group A",UTR Men,,Miles Jones,Felipe Pinzon Moreno,1756483200
-2025-08-29,14558667,"UTR PTT San Diego Men 02, Group B",UTR Men,,Calvin Baierl,Tanapatt Nirundorn,1756494900
-2025-08-29,14558664,"UTR PTT San Diego Men 02, Group B",UTR Men,,Aleksa Ciric,Azariah Rusher,1756504800
-2025-08-29,14558651,"UTR PTT San Diego Men 02, Group C",UTR Men,,JanMagnus Johnson,Elias Shokry,1756492200
-2025-08-29,14558652,"UTR PTT San Diego Men 02, Group C",UTR Men,,Landon Ardila,Carter Pate,1756492200
-2025-08-29,14558673,"UTR PTT San Diego Men 02, Group C",UTR Men,,Elias Shokry,Landon Ardila,1756503000
-2025-08-29,14558660,"UTR PTT San Diego Men 02, Group C",UTR Men,,JanMagnus Johnson,Carter Pate,1756509300
-2025-08-29,14558657,"UTR PTT San Diego Men 02, Group D",UTR Men,,Agustin Mastri,Derrick Chen,1756477800
-2025-08-29,14558655,"UTR PTT San Diego Men 02, Group D",UTR Men,,Matic Kriznik,Joaquin Benoit,1756482300
-2025-08-29,14558659,"UTR PTT San Diego Men 02, Group D",UTR Men,,Agustin Mastri,Joaquin Benoit,1756511100
-2025-08-29,14558656,"UTR PTT San Diego Men 02, Group D",UTR Men,,Derrick Chen,Matic Kriznik,1756506600
-2025-08-29,14516898,"UTR PTT Boise Women 02, Group A",UTR Women,,Ava Markham,Paula Schaefer,1756393200
-2025-08-29,14518758,"UTR PTT Boise Women 02, Group A",UTR Women,,Stella Beldiman,Ariane Lesterhuis,1756409100
-2025-08-29,14516909,"UTR PTT Boise Women 02, Group A",UTR Women,,Stella Beldiman,Paula Schaefer,1756479600
-2025-08-29,14518756,"UTR PTT Boise Women 02, Group A",UTR Women,,Waverly Potter,Ariane Lesterhuis,1756478700
-2025-08-29,14516900,"UTR PTT Boise Women 02, Group B",UTR Women,,Tereza Polakova,Selma Stefania Cadar,1756395900
-2025-08-29,14518762,"UTR PTT Boise Women 02, Group B",UTR Women,,Avery Olsen,Ryan Kershner,1756405800
-2025-08-29,14516912,"UTR PTT Boise Women 02, Group B",UTR Women,,Tereza Polakova,Ryan Kershner,1756413900
-2025-08-29,14559041,"UTR PTT Boise Women 02, Group B",UTR Women,,Avery Olsen,Nikoline Gullacksen,1756410900
-2025-08-29,14516901,"UTR PTT Boise Women 02, Group B",UTR Women,,Olive Maunupau,Selma Stefania Cadar,1756488600
-2025-08-29,14559042,"UTR PTT Boise Women 02, Group B",UTR Women,,Tereza Polakova,Nikoline Gullacksen,1756483200
-2025-08-29,14516899,"UTR PTT Boise Women 02, Group C",UTR Women,,Autumn Rabjohns,Masa Viriant,1756401300
-2025-08-29,14516905,"UTR PTT Boise Women 02, Group C",UTR Women,,Lily Revak,Ella Piron,1756400400
-2025-08-29,14516917,"UTR PTT Boise Women 02, Group C",UTR Women,,Adesuwa Osabuohien,Ella Piron,1756475100
-2025-08-29,14516892,"UTR PTT Boise Women 02, Group C",UTR Women,,Lily Revak,Masa Viriant,1756482300
-2025-08-29,14516920,"UTR PTT Boise Women 02, Group D",UTR Women,,Miruna Scarlat,Allison Nicole Isaacs,1756395600
-2025-08-29,14518755,"UTR PTT Boise Women 02, Group D",UTR Women,,Sophia Dumitrascu,Amiya Bowles,1756398600
-2025-08-29,14518761,"UTR PTT Boise Women 02, Group D",UTR Women,,Polina Marakhtanova,Amiya Bowles,1756485000
-2025-08-29,14516915,"UTR PTT Boise Women 02, Group D",UTR Women,,Sophia Dumitrascu,Allison Nicole Isaacs,1756482300
-2025-08-29,14520693,"UTR PTT Knoxville Women 03, Group A",UTR Women,,Dalayna Hewitt,Tanika Saravanan,1756385100
-2025-08-29,14520694,"UTR PTT Knoxville Women 03, Group A",UTR Women,,Gabriella Rawles,Reese Frank,1756398300
-2025-08-29,14520692,"UTR PTT Knoxville Women 03, Group A",UTR Women,,Dalayna Hewitt,Reese Frank,1756476000
-2025-08-29,14520695,"UTR PTT Knoxville Women 03, Group A",UTR Women,,Saray Yli-Piipari,Tanika Saravanan,1756477800
-2025-08-29,14520493,"UTR PTT Knoxville Women 03, Group B",UTR Women,,Neena Feldman,Yuliya Hatouka,1756396500
-2025-08-29,14520497,"UTR PTT Knoxville Women 03, Group B",UTR Women,,Yilin Yan,Karma Yacavino,1756405500
-2025-08-29,14520496,"UTR PTT Knoxville Women 03, Group B",UTR Women,,Alden Russell,Karma Yacavino,1756480500
-2025-08-29,14520495,"UTR PTT Knoxville Women 03, Group B",UTR Women,,Yilin Yan,Yuliya Hatouka,1756488600
-2025-08-29,14542447,"UTR PTT Knoxville Women 03, Group C",UTR Women,,Alyson Shannon,Leyla Fiorella Britez Risso,1756411200
+2025-08-29,14558667,"UTR PTT San Diego Men 02, Group B",UTR Men,,Calvin Baierl,Tanapatt Nirundorn,1756496700
+2025-08-29,14558664,"UTR PTT San Diego Men 02, Group B",UTR Men,,Aleksa Ciric,Azariah Rusher,1756500300
+2025-08-29,14558651,"UTR PTT San Diego Men 02, Group C",UTR Men,,JanMagnus Johnson,Elias Shokry,1756494000
+2025-08-29,14558652,"UTR PTT San Diego Men 02, Group C",UTR Men,,Landon Ardila,Carter Pate,1756482300
+2025-08-29,14558673,"UTR PTT San Diego Men 02, Group C",UTR Men,,Elias Shokry,Landon Ardila,1756497600
+2025-08-29,14558660,"UTR PTT San Diego Men 02, Group C",UTR Men,,JanMagnus Johnson,Carter Pate,1756494000
+2025-08-29,14558657,"UTR PTT San Diego Men 02, Group D",UTR Men,,Agustin Mastri,Derrick Chen,1756487700
+2025-08-29,14558655,"UTR PTT San Diego Men 02, Group D",UTR Men,,Matic Kriznik,Joaquin Benoit,1756483200
+2025-08-29,14558659,"UTR PTT San Diego Men 02, Group D",UTR Men,,Agustin Mastri,Joaquin Benoit,1756516500
+2025-08-29,14558656,"UTR PTT San Diego Men 02, Group D",UTR Men,,Derrick Chen,Matic Kriznik,1756505700
+2025-08-29,14516898,"UTR PTT Boise Women 02, Group A",UTR Women,,Ava Markham,Paula Schaefer,1756398600
+2025-08-29,14518758,"UTR PTT Boise Women 02, Group A",UTR Women,,Stella Beldiman,Ariane Lesterhuis,1756404600
+2025-08-29,14516909,"UTR PTT Boise Women 02, Group A",UTR Women,,Stella Beldiman,Paula Schaefer,1756488600
+2025-08-29,14518756,"UTR PTT Boise Women 02, Group A",UTR Women,,Waverly Potter,Ariane Lesterhuis,1756475100
+2025-08-29,14516900,"UTR PTT Boise Women 02, Group B",UTR Women,,Tereza Polakova,Selma Stefania Cadar,1756393200
+2025-08-29,14518762,"UTR PTT Boise Women 02, Group B",UTR Women,,Avery Olsen,Ryan Kershner,1756411200
+2025-08-29,14516912,"UTR PTT Boise Women 02, Group B",UTR Women,,Tereza Polakova,Ryan Kershner,1756399500
+2025-08-29,14559041,"UTR PTT Boise Women 02, Group B",UTR Women,,Avery Olsen,Nikoline Gullacksen,1756407300
+2025-08-29,14516901,"UTR PTT Boise Women 02, Group B",UTR Women,,Olive Maunupau,Selma Stefania Cadar,1756480500
+2025-08-29,14559042,"UTR PTT Boise Women 02, Group B",UTR Women,,Tereza Polakova,Nikoline Gullacksen,1756475100
+2025-08-29,14516899,"UTR PTT Boise Women 02, Group C",UTR Women,,Autumn Rabjohns,Masa Viriant,1756391400
+2025-08-29,14516905,"UTR PTT Boise Women 02, Group C",UTR Women,,Lily Revak,Ella Piron,1756408500
+2025-08-29,14516917,"UTR PTT Boise Women 02, Group C",UTR Women,,Adesuwa Osabuohien,Ella Piron,1756485900
+2025-08-29,14516892,"UTR PTT Boise Women 02, Group C",UTR Women,,Lily Revak,Masa Viriant,1756486800
+2025-08-29,14516920,"UTR PTT Boise Women 02, Group D",UTR Women,,Miruna Scarlat,Allison Nicole Isaacs,1756401000
+2025-08-29,14518755,"UTR PTT Boise Women 02, Group D",UTR Women,,Sophia Dumitrascu,Amiya Bowles,1756412100
+2025-08-29,14518761,"UTR PTT Boise Women 02, Group D",UTR Women,,Polina Marakhtanova,Amiya Bowles,1756475100
+2025-08-29,14516915,"UTR PTT Boise Women 02, Group D",UTR Women,,Sophia Dumitrascu,Allison Nicole Isaacs,1756490400
+2025-08-29,14520693,"UTR PTT Knoxville Women 03, Group A",UTR Women,,Dalayna Hewitt,Tanika Saravanan,1756400400
+2025-08-29,14520694,"UTR PTT Knoxville Women 03, Group A",UTR Women,,Gabriella Rawles,Reese Frank,1756406400
+2025-08-29,14520692,"UTR PTT Knoxville Women 03, Group A",UTR Women,,Dalayna Hewitt,Reese Frank,1756483200
+2025-08-29,14520695,"UTR PTT Knoxville Women 03, Group A",UTR Women,,Saray Yli-Piipari,Tanika Saravanan,1756478700
+2025-08-29,14520493,"UTR PTT Knoxville Women 03, Group B",UTR Women,,Neena Feldman,Yuliya Hatouka,1756400100
+2025-08-29,14520497,"UTR PTT Knoxville Women 03, Group B",UTR Women,,Yilin Yan,Karma Yacavino,1756415400
+2025-08-29,14520496,"UTR PTT Knoxville Women 03, Group B",UTR Women,,Alden Russell,Karma Yacavino,1756472400
+2025-08-29,14520495,"UTR PTT Knoxville Women 03, Group B",UTR Women,,Yilin Yan,Yuliya Hatouka,1756479600
+2025-08-29,14542447,"UTR PTT Knoxville Women 03, Group C",UTR Women,,Alyson Shannon,Leyla Fiorella Britez Risso,1756404900
 2025-08-29,14542446,"UTR PTT Knoxville Women 03, Group C",UTR Women,,Briley Rhoden,Alaina Lisanti,1756407600
-2025-08-29,14559605,"UTR PTT Knoxville Women 03, Group C",UTR Women,,Katya Shepherd Johnson,Alaina Lisanti,1756411200
-2025-08-29,14542445,"UTR PTT Knoxville Women 03, Group C",UTR Women,,Briley Rhoden,Leyla Fiorella Britez Risso,1756485000
-2025-08-29,14542449,"UTR PTT Knoxville Women 03, Group C",UTR Women,,Carlota Moreno,Alaina Lisanti,1756476900
-2025-08-29,14559604,"UTR PTT Knoxville Women 03, Group C",UTR Women,,Katya Shepherd Johnson,Leyla Fiorella Britez Risso,1756476000
-2025-08-29,14520699,"UTR PTT Knoxville Women 03, Group D",UTR Women,,Sara Nayar,Amy Lee,1756397700
-2025-08-29,14520511,"UTR PTT Knoxville Women 03, Group D",UTR Women,,Julia Adams,Francesca Mattioli,1756415400
-2025-08-29,14520698,"UTR PTT Knoxville Women 03, Group D",UTR Women,,Rutuja Chaphalkar,Amy Lee,1756471500
-2025-08-29,14520508,"UTR PTT Knoxville Women 03, Group D",UTR Women,,Sara Nayar,Francesca Mattioli,1756481400
-2025-08-29,14516817,"UTR PTT Olomouc Women 05, Group A",UTR Women,,Aneta Poborilova,Aneta Holubova,1756453500
-2025-08-29,14516795,"UTR PTT Olomouc Women 05, Group A",UTR Women,,Natalie Salkova,Sofia Milatova,1756452600
-2025-08-29,14516813,"UTR PTT Olomouc Women 05, Group B",UTR Women,,Nikola Koprivova,Nela Linhartova,1756453500
-2025-08-29,14516804,"UTR PTT Olomouc Women 05, Group B",UTR Women,,Valentina Vachkova,Magdalena Smekalova,1756442700
-2025-08-29,14516806,"UTR PTT Olomouc Women 05, Group C",UTR Women,,Karina Dunda,Simona Wirglerova,1756372800
-2025-08-29,14545248,"UTR PTT Olomouc Women 05, Group C",UTR Women,,Karina Dunda,Izabela Heinzova,1756457100
-2025-08-29,14518745,"UTR PTT Olomouc Women 05, Group C",UTR Women,,Veronika Sekerkova,Simona Wirglerova,1756455300
-2025-08-29,14516807,"UTR PTT Olomouc Women 05, Group D",UTR Women,,Beata Havlickova,Denise Hrdinkova,1756454400
-2025-08-29,14516789,"UTR PTT Olomouc Women 05, Group D",UTR Women,,Kiara Zabkova,Gabriela Skrabalova,1756457100
-2025-08-29,14558683,"UTR PTT San Diego Women 02, Group A",UTR Women,,Zoe Hammond,Jaedan Brown,1756485000
-2025-08-29,14558692,"UTR PTT San Diego Women 02, Group A",UTR Women,,Virginia Crocker,Alicia Herrero Linana,1756507200
-2025-08-29,14558686,"UTR PTT San Diego Women 02, Group B",UTR Women,,Maria Fernanda Navarro Oliva,Rhiann Newborn,1756503600
-2025-08-29,14558693,"UTR PTT San Diego Women 02, Group B",UTR Women,,Shona Nakano,Robin Anderson,1756498200
-2025-08-29,14558676,"UTR PTT San Diego Women 02, Group C",UTR Women,,Alana Boyce,Kailey Evans,1756503000
-2025-08-29,14558689,"UTR PTT San Diego Women 02, Group C",UTR Women,,Ariana Anazagasty-Pursoo,Alina Shcherbinina,1756502100
-2025-08-29,14558687,"UTR PTT San Diego Women 02, Group C",UTR Women,,Alana Boyce,Alina Shcherbinina,1756517400
-2025-08-29,14558688,"UTR PTT San Diego Women 02, Group C",UTR Women,,Kailey Evans,Ariana Anazagasty-Pursoo,1756503000
-2025-08-29,14558698,"UTR PTT San Diego Women 02, Group D",UTR Women,,Alejandra Cruz,Riley Crowder,1756497600
-2025-08-29,14558696,"UTR PTT San Diego Women 02, Group D",UTR Women,,Veronica Miroshnichenko,Ava Esposito Cogan,1756496700
-2025-08-29,14558695,"UTR PTT San Diego Women 02, Group D",UTR Women,,Ava Esposito Cogan,Alejandra Cruz,1756514700
+2025-08-29,14559605,"UTR PTT Knoxville Women 03, Group C",UTR Women,,Katya Shepherd Johnson,Alaina Lisanti,1756413000
+2025-08-29,14542445,"UTR PTT Knoxville Women 03, Group C",UTR Women,,Briley Rhoden,Leyla Fiorella Britez Risso,1756471500
+2025-08-29,14542449,"UTR PTT Knoxville Women 03, Group C",UTR Women,,Carlota Moreno,Alaina Lisanti,1756485000
+2025-08-29,14559604,"UTR PTT Knoxville Women 03, Group C",UTR Women,,Katya Shepherd Johnson,Leyla Fiorella Britez Risso,1756484100
+2025-08-29,14520699,"UTR PTT Knoxville Women 03, Group D",UTR Women,,Sara Nayar,Amy Lee,1756386000
+2025-08-29,14520511,"UTR PTT Knoxville Women 03, Group D",UTR Women,,Julia Adams,Francesca Mattioli,1756405500
+2025-08-29,14520698,"UTR PTT Knoxville Women 03, Group D",UTR Women,,Rutuja Chaphalkar,Amy Lee,1756485000
+2025-08-29,14520508,"UTR PTT Knoxville Women 03, Group D",UTR Women,,Sara Nayar,Francesca Mattioli,1756485900
+2025-08-29,14516817,"UTR PTT Olomouc Women 05, Group A",UTR Women,,Aneta Poborilova,Aneta Holubova,1756444500
+2025-08-29,14516795,"UTR PTT Olomouc Women 05, Group A",UTR Women,,Natalie Salkova,Sofia Milatova,1756451700
+2025-08-29,14516813,"UTR PTT Olomouc Women 05, Group B",UTR Women,,Nikola Koprivova,Nela Linhartova,1756458900
+2025-08-29,14516804,"UTR PTT Olomouc Women 05, Group B",UTR Women,,Valentina Vachkova,Magdalena Smekalova,1756448100
+2025-08-29,14564651,"UTR PTT Olomouc Women 05, Group B",UTR Women,,Viktorie Zidelova,Nela Linhartova,1756442700
+2025-08-29,14516806,"UTR PTT Olomouc Women 05, Group C",UTR Women,,Karina Dunda,Simona Wirglerova,1756381800
+2025-08-29,14545248,"UTR PTT Olomouc Women 05, Group C",UTR Women,,Karina Dunda,Izabela Heinzova,1756459800
+2025-08-29,14518745,"UTR PTT Olomouc Women 05, Group C",UTR Women,,Veronika Sekerkova,Simona Wirglerova,1756448100
+2025-08-29,14516807,"UTR PTT Olomouc Women 05, Group D",UTR Women,,Beata Havlickova,Denise Hrdinkova,1756458900
+2025-08-29,14516789,"UTR PTT Olomouc Women 05, Group D",UTR Women,,Kiara Zabkova,Gabriela Skrabalova,1756447200
+2025-08-29,14558683,"UTR PTT San Diego Women 02, Group A",UTR Women,,Zoe Hammond,Jaedan Brown,1756485900
+2025-08-29,14558692,"UTR PTT San Diego Women 02, Group A",UTR Women,,Virginia Crocker,Alicia Herrero Linana,1756499100
+2025-08-29,14558686,"UTR PTT San Diego Women 02, Group B",UTR Women,,Maria Fernanda Navarro Oliva,Rhiann Newborn,1756502700
+2025-08-29,14558693,"UTR PTT San Diego Women 02, Group B",UTR Women,,Shona Nakano,Robin Anderson,1756491900
+2025-08-29,14558676,"UTR PTT San Diego Women 02, Group C",UTR Women,,Alana Boyce,Kailey Evans,1756501200
+2025-08-29,14558689,"UTR PTT San Diego Women 02, Group C",UTR Women,,Ariana Anazagasty-Pursoo,Alina Shcherbinina,1756503000
+2025-08-29,14558687,"UTR PTT San Diego Women 02, Group C",UTR Women,,Alana Boyce,Alina Shcherbinina,1756499400
+2025-08-29,14558688,"UTR PTT San Diego Women 02, Group C",UTR Women,,Kailey Evans,Ariana Anazagasty-Pursoo,1756500300
+2025-08-29,14558698,"UTR PTT San Diego Women 02, Group D",UTR Women,,Alejandra Cruz,Riley Crowder,1756501200
+2025-08-29,14558696,"UTR PTT San Diego Women 02, Group D",UTR Women,,Veronica Miroshnichenko,Ava Esposito Cogan,1756503000
+2025-08-29,14558695,"UTR PTT San Diego Women 02, Group D",UTR Women,,Ava Esposito Cogan,Alejandra Cruz,1756501200
 2025-08-29,14558697,"UTR PTT San Diego Women 02, Group D",UTR Women,,Veronica Miroshnichenko,Riley Crowder,1756512900

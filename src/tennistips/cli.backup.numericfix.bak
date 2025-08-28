@@ -1,0 +1,213 @@
+﻿# -*- coding: utf-8 -*-
+"""
+CLI for tennistips (signature-agnostic) + numeric matrix prep.
+"""
+from __future__ import annotations
+
+import argparse
+import os
+import sys
+import inspect
+from typing import Optional
+import pandas as pd
+import numpy as np
+
+# Optional project helpers
+try:
+    from .data import load_matches as _load_matches
+except Exception:
+    _load_matches = None
+
+try:
+    from .config import load_config as _load_config
+except Exception:
+    _load_config = None
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="src.tennistips.cli", description="CLI for tennis-bot-tipster")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+    p = sub.add_parser("tips", help="Generate tips from history and fixtures")
+    p.add_argument("--history", required=True, help="CSV with match history")
+    p.add_argument("--fixtures", required=True, help="CSV with prepared fixtures")
+    p.add_argument("--config", required=False, default=None, help="Config file (YAML or project loader)")
+    p.add_argument("--model-path", dest="model_path", required=False, default=None, help="Model path (e.g., models/model.joblib)")
+    p.add_argument("--out", required=True, help="Output CSV for tips")
+    return parser
+
+def _read_history(path: str) -> pd.DataFrame:
+    if _load_matches is not None:
+        return _load_matches(path)
+    return pd.read_csv(path)
+
+def _read_fixtures(path: str) -> pd.DataFrame:
+    return pd.read_csv(path)
+
+def _to_namespace(obj):
+    from types import SimpleNamespace
+    if isinstance(obj, dict):
+        return SimpleNamespace(**{k: _to_namespace(v) for k, v in obj.items()})
+    if isinstance(obj, list):
+        return [_to_namespace(x) for x in obj]
+    return obj
+
+def _load_cfg(config_path: Optional[str]):
+    if not config_path:
+        return None
+    if _load_config is not None:
+        return _load_config(config_path)
+    try:
+        import yaml  # type: ignore
+    except Exception as e:
+        raise RuntimeError("PyYAML not installed and project does not provide a config loader. `pip install pyyaml`") from e
+    with open(config_path, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+    return _to_namespace(data)
+
+def _get(cfg, dotted, default=None):
+    if cfg is None:
+        return default
+    cur = cfg
+    for part in dotted.split("."):
+        cur = getattr(cur, part, default) if not isinstance(cur, dict) else cur.get(part, default)
+        if cur is default:
+            break
+    return cur
+
+def _first(*vals):
+    for v in vals:
+        if v is not None:
+            return v
+    return None
+
+def _elo_form_h2h_params_from_cfg(cfg):
+    start_elo        = _first(_get(cfg, "elo.start"), _get(cfg, "elo_start"), 1500.0)
+    k_base           = _first(_get(cfg, "elo.k_base"), _get(cfg, "elo.k"), 32.0)
+    surface_k_boost  = _first(_get(cfg, "elo.surface_k_boost"), _get(cfg, "elo.surface_boost"), 0.30)
+    form_window      = _first(_get(cfg, "form.window"), _get(cfg, "features.form_window"), 5)
+    h2h_decay        = _first(_get(cfg, "h2h.decay"), 0.90)
+    return {
+        "start_elo": start_elo,
+        "k_base": k_base,
+        "surface_k_boost": surface_k_boost,
+        "form_window": form_window,
+        "h2h_decay": h2h_decay,
+    }
+
+def _smart_call(func, history_df, fixtures_df, cfg, config_path, model_path):
+    sig = inspect.signature(func)
+    params = sig.parameters
+
+    mapping = {
+        "history": history_df, "history_df": history_df, "hist": history_df, "matches": history_df, "df_history": history_df, "df_hist": history_df,
+        "fixtures": fixtures_df, "fixtures_df": fixtures_df, "fx": fixtures_df, "df_fixtures": fixtures_df,
+        "config": cfg if cfg is not None else config_path,
+        "cfg": cfg, "conf": cfg, "settings": cfg, "config_obj": cfg, "config_dict": cfg,
+        "config_path": config_path,
+        "model_path": model_path, "model": model_path, "model_file": model_path
+    }
+
+    extras = _elo_form_h2h_params_from_cfg(cfg)
+
+    kwargs = {}
+    for name in params:
+        if name in mapping and mapping[name] is not None:
+            kwargs[name] = mapping[name]
+    for name, val in extras.items():
+        if name in params and name not in kwargs:
+            kwargs[name] = val
+
+    try:
+        return func(**kwargs)
+    except TypeError:
+        if ("config" in params) and (cfg is not None):
+            kwargs2 = dict(kwargs)
+            kwargs2["config"] = config_path
+            return func(**kwargs2)
+        raise
+
+def _prepare_X_for_model(X: object, model: object | None = None):
+    """
+    Ensure X is numeric numpy array:
+      - convert datetime columns to epoch seconds
+      - drop non-numeric columns
+      - fill NaNs with 0.0
+      - return numpy array (no feature names), to match training done without names
+    """
+    if not isinstance(X, pd.DataFrame):
+        return X
+    df = X.copy()
+
+    # Convert datetimes (including tz-aware) to seconds since epoch
+    dt_cols = list(df.select_dtypes(include=["datetime64[ns]", "datetime64[ns, UTC]", "datetimetz"]).columns)
+    for c in dt_cols:
+        # to UTC then view int64 nanoseconds -> seconds float
+        try:
+            df[c] = pd.to_datetime(df[c], utc=True, errors="coerce").view("int64") / 1e9
+        except Exception:
+            df[c] = pd.to_datetime(df[c], errors="coerce").view("int64") / 1e9
+
+    # Keep only numeric (incl. bool)
+    num_df = df.select_dtypes(include=[np.number, "bool"]).astype(float)
+    num_df = num_df.replace([np.inf, -np.inf], np.nan).fillna(0.0)
+
+    # If model exposes desired order, align (optional)
+    order = None
+    for attr in ("feature_order_", "feature_names_", "columns_", "features_"):
+        if hasattr(model, attr):
+            val = getattr(model, attr)
+            if isinstance(val, (list, tuple)) and all((isinstance(x, str) for x in val)):
+                order = [c for c in val if c in num_df.columns]
+                break
+    if order:
+        num_df = num_df.reindex(columns=order, fill_value=0.0)
+
+    return num_df.to_numpy(dtype=float)
+
+def _generate_tips(history_df: pd.DataFrame, fixtures_df: pd.DataFrame, config_path: Optional[str], model_path: Optional[str]) -> pd.DataFrame:
+    cfg = _load_cfg(config_path)
+
+    # Preferred entrypoint
+    try:
+        from .tips import generate_tips  # type: ignore
+        return _smart_call(generate_tips, history_df, fixtures_df, cfg, config_path, model_path)
+    except Exception:
+        pass
+
+    # Fallback: build_features + optional model
+    from .features import build_features  # type: ignore
+    X = _smart_call(build_features, history_df, fixtures_df, cfg, config_path, model_path)
+
+    if model_path:
+        import joblib
+        model = joblib.load(model_path)
+        X_input = _prepare_X_for_model(X, model)
+        if hasattr(model, "predict_proba"):
+            proba = model.predict_proba(X_input)[:, 1]
+        else:
+            proba = model.predict(X_input)
+        out_df = fixtures_df.copy()
+        out_df["pred_prob"] = proba
+        return out_df
+
+    return X if isinstance(X, pd.DataFrame) else fixtures_df
+
+def cmd_tips(args: argparse.Namespace) -> int:
+    history_df = _read_history(args.history)
+    fixtures_df = _read_fixtures(args.fixtures)
+    tips_df = _generate_tips(history_df, fixtures_df, args.config, args.model_path)
+    out_dir = os.path.dirname(args.out) or "."
+    os.makedirs(out_dir, exist_ok=True)
+    tips_df.to_csv(args.out, index=False)
+    print(f"[tips] written: {len(tips_df)} rows -> {args.out}")
+    return 0
+
+def main(argv: Optional[list[str]] = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.cmd == "tips":
+        return cmd_tips(args)
+    parser.print_help()
+    return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

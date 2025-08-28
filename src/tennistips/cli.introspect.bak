@@ -1,0 +1,152 @@
+﻿# -*- coding: utf-8 -*-
+"""
+Simple CLI for tennistips.
+
+Example:
+  python -m src.tennistips.cli tips `
+    --history data/processed/matches.csv `
+    --fixtures data/fixtures/latest_for_tips.csv `
+    --config configs/default.yaml `
+    --model-path models/model.joblib `
+    --out outputs/tips.csv
+"""
+from __future__ import annotations
+
+import argparse
+import os
+import sys
+from typing import Optional
+
+import pandas as pd
+
+# Optional project helpers
+try:
+    from .data import load_matches as _load_matches
+except Exception:
+    _load_matches = None
+
+try:
+    from .config import load_config as _load_config
+except Exception:
+    _load_config = None
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="src.tennistips.cli", description="CLI for tennis-bot-tipster")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    p = sub.add_parser("tips", help="Generate tips from history and fixtures")
+    p.add_argument("--history", required=True, help="CSV with match history (e.g., data/processed/matches.csv)")
+    p.add_argument("--fixtures", required=True, help="CSV with prepared fixtures (e.g., data/fixtures/latest_for_tips.csv)")
+    p.add_argument("--config", required=False, default=None, help="Config file (e.g., configs/default.yaml)")
+    p.add_argument("--model-path", dest="model_path", required=False, default=None, help="Model path (e.g., models/model.joblib)")
+    p.add_argument("--out", required=True, help="Output CSV for tips (e.g., outputs/tips.csv)")
+    return parser
+
+def _read_history(path: str) -> pd.DataFrame:
+    if _load_matches is not None:
+        return _load_matches(path)
+    return pd.read_csv(path)
+
+def _read_fixtures(path: str) -> pd.DataFrame:
+    return pd.read_csv(path)
+
+def _to_namespace(obj):
+    # Convert dict to attribute-style access for keys (so cfg.elo.start works)
+    from types import SimpleNamespace
+    if isinstance(obj, dict):
+        return SimpleNamespace(**{k: _to_namespace(v) for k, v in obj.items()})
+    if isinstance(obj, list):
+        return [_to_namespace(x) for x in obj]
+    return obj
+
+def _load_cfg(config_path: Optional[str]):
+    if not config_path:
+        return None
+    if _load_config is not None:
+        return _load_config(config_path)
+    # Fallback: load YAML safely and convert to namespace
+    try:
+        import yaml  # type: ignore
+    except Exception as e:
+        raise RuntimeError("PyYAML not installed and project does not provide config loader. Install with: pip install pyyaml") from e
+    with open(config_path, "r", encoding="utf-8") as f:
+        data = yaml.safe_load(f) or {}
+    return _to_namespace(data)
+
+def _generate_tips(history_df: pd.DataFrame, fixtures_df: pd.DataFrame, config_path: Optional[str], model_path: Optional[str]) -> pd.DataFrame:
+    cfg = _load_cfg(config_path)
+
+    # Preferred project entrypoint
+    try:
+        from .tips import generate_tips  # type: ignore
+        # Try common signatures
+        for call in (
+            lambda: generate_tips(history=history_df, fixtures=fixtures_df, config=cfg, model_path=model_path),
+            lambda: generate_tips(history_df=history_df, fixtures_df=fixtures_df, config=cfg, model_path=model_path),
+            lambda: generate_tips(history_df, fixtures_df, cfg, model_path),
+            lambda: generate_tips(history_df, fixtures_df, config=cfg, model_path=model_path),
+            lambda: generate_tips(history_df=history_df, fixtures_df=fixtures_df, cfg=cfg, model_path=model_path),
+            lambda: generate_tips(history_df, fixtures_df, cfg),
+        ):
+            try:
+                return call()
+            except TypeError:
+                continue
+    except Exception:
+        pass
+
+    # Fallback: build_features + optional model
+    from .features import build_features  # type: ignore
+
+    X = None
+    for call in (
+        lambda: build_features(history=history_df, fixtures=fixtures_df, config=cfg),
+        lambda: build_features(history_df=history_df, fixtures_df=fixtures_df, config=cfg),
+        lambda: build_features(history_df, fixtures_df, cfg),
+        lambda: build_features(history_df, fixtures_df),
+    ):
+        try:
+            X = call()
+            break
+        except TypeError:
+            continue
+
+    if X is None:
+        raise RuntimeError("Could not call generate_tips or build_features with any supported signature.")
+
+    if model_path:
+        import joblib
+        model = joblib.load(model_path)
+        if hasattr(model, "predict_proba"):
+            proba = model.predict_proba(X)[:, 1]
+        else:
+            proba = model.predict(X)
+        out_df = fixtures_df.copy()
+        out_df["pred_prob"] = proba
+        return out_df
+
+    # No model: return whatever features/baseline DF is available
+    return X if isinstance(X, pd.DataFrame) else fixtures_df
+
+def cmd_tips(args: argparse.Namespace) -> int:
+    history_df = _read_history(args.history)
+    fixtures_df = _read_fixtures(args.fixtures)
+
+    tips_df = _generate_tips(history_df, fixtures_df, args.config, args.model_path)
+
+    out_dir = os.path.dirname(args.out) or "."
+    os.makedirs(out_dir, exist_ok=True)
+    tips_df.to_csv(args.out, index=False)
+    print(f"[tips] written: {len(tips_df)} rows -> {args.out}")
+    return 0
+
+def main(argv: Optional[list[str]] = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.cmd == "tips":
+        return cmd_tips(args)
+    parser.print_help()
+    return 1
+
+if __name__ == "__main__":
+    sys.exit(main())

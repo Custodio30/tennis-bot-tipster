@@ -1,0 +1,106 @@
+# -*- coding: utf-8 -*-
+"""
+CLI para o pacote tennistips.
+Subcomando principal: `tips`
+Exemplo:
+  python -m src.tennistips.cli tips `
+    --history data/processed/matches.csv `
+    --fixtures data/fixtures/latest_for_tips.csv `
+    --config configs/default.yaml `
+    --model-path models/model.joblib `
+    --out outputs/tips.csv
+"""
+from __future__ import annotations
+
+import argparse
+import os
+import sys
+from typing import Optional
+
+import pandas as pd
+
+# Imports opcionais; s� falham se o projeto n�o tiver esses m�dulos
+try:
+    from .data import load_matches as _load_matches
+except Exception:
+    _load_matches = None
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="src.tennistips.cli", description="CLI do tennis-bot-tipster")
+    sub = parser.add_subparsers(dest="cmd", required=True)
+
+    p = sub.add_parser("tips", help="Gerar tips a partir de hist�rico e fixtures")
+    p.add_argument("--history", required=True, help="CSV com hist�rico de jogos (ex.: data/processed/matches.csv)")
+    p.add_argument("--fixtures", required=True, help="CSV com fixtures preparados (ex.: data/fixtures/latest_for_tips.csv)")
+    p.add_argument("--config", required=False, default=None, help="Ficheiro de configura��o (ex.: configs/default.yaml)")
+    p.add_argument("--model-path", dest="model_path", required=False, default=None, help="Caminho do modelo (ex.: models/model.joblib)")
+    p.add_argument("--out", required=True, help="CSV de sa�da para as tips (ex.: outputs/tips.csv)")
+    return parser
+
+def _read_history(path: str) -> pd.DataFrame:
+    if _load_matches is not None:
+        return _load_matches(path)
+    return pd.read_csv(path)
+
+def _read_fixtures(path: str) -> pd.DataFrame:
+    return pd.read_csv(path)
+
+def _generate_tips(history_df: pd.DataFrame, fixtures_df: pd.DataFrame, config_path: Optional[str], model_path: Optional[str]) -> pd.DataFrame:
+    """
+    Tenta usar .tips.generate_tips. Se a assinatura variar, tenta alternativas.
+    Caso n�o exista, cai no fallback: .features.build_features + modelo.
+    """
+    # 1) Tenta usar a fun��o oficial do projeto
+    try:
+        from .tips import generate_tips  # type: ignore
+        # Tentar v�rias assinaturas comuns:
+        try:
+            return generate_tips(history=history_df, fixtures=fixtures_df, config=config_path, model_path=model_path)
+        except TypeError:
+            try:
+                return generate_tips(history_df=history_df, fixtures_df=fixtures_df, config_path=config_path, model_path=model_path)
+            except TypeError:
+                return generate_tips(history_df, fixtures_df, config_path, model_path)
+    except Exception:
+        # 2) Fallback simples: features + modelo
+        from .features import build_features  # type: ignore
+        X = build_features(history_df, fixtures_df, config_path=config_path)
+        if model_path:
+            try:
+                import joblib
+                model = joblib.load(model_path)
+                if hasattr(model, "predict_proba"):
+                    proba = model.predict_proba(X)[:, 1]
+                else:
+                    proba = model.predict(X)
+                out_df = fixtures_df.copy()
+                out_df["pred_prob"] = proba
+                return out_df
+            except Exception as e:
+                raise RuntimeError(f"Falha ao carregar/usar o modelo em '{model_path}': {e}") from e
+        else:
+            # Sem modelo, devolve s� as features baseadas em fixtures
+            return X if isinstance(X, pd.DataFrame) else fixtures_df
+
+def cmd_tips(args: argparse.Namespace) -> int:
+    history_df = _read_history(args.history)
+    fixtures_df = _read_fixtures(args.fixtures)
+
+    tips_df = _generate_tips(history_df, fixtures_df, args.config, args.model_path)
+
+    out_dir = os.path.dirname(args.out) or "."
+    os.makedirs(out_dir, exist_ok=True)
+    tips_df.to_csv(args.out, index=False)
+    print(f"[tips] escrito: {len(tips_df)} linhas ? {args.out}")
+    return 0
+
+def main(argv: Optional[list[str]] = None) -> int:
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if args.cmd == "tips":
+        return cmd_tips(args)
+    parser.print_help()
+    return 1
+
+if __name__ == "__main__":  # quando corre com `-m`, __name__ == "__main__"`
+    sys.exit(main())

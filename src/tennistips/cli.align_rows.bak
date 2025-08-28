@@ -1,7 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 """
-CLI for tennistips (signature-agnostic) + numeric matrix prep + auto-subset to model n_features
-+ row alignment of features to fixtures.
+CLI for tennistips (signature-agnostic) + numeric matrix prep + auto-subset to model n_features.
 """
 from __future__ import annotations
 
@@ -9,7 +8,7 @@ import argparse
 import os
 import sys
 import inspect
-from typing import Optional, Iterable, List
+from typing import Optional, Iterable
 import pandas as pd
 import numpy as np
 
@@ -127,6 +126,7 @@ def _smart_call(func, history_df, fixtures_df, cfg, config_path, model_path):
         raise
 
 def _flatten_estimators(obj) -> Iterable[object]:
+    """Yield obj and plausible nested estimators to discover n_features."""
     seen = set()
     stack = [obj]
     while stack:
@@ -135,7 +135,8 @@ def _flatten_estimators(obj) -> Iterable[object]:
             continue
         seen.add(id(cur))
         yield cur
-        for attr in ("obj","estimator","base_estimator","best_estimator_","final_estimator","classifier"):
+        # common nests
+        for attr in ("obj", "estimator", "base_estimator", "best_estimator_", "final_estimator", "classifier"):
             if hasattr(cur, attr):
                 try:
                     val = getattr(cur, attr)
@@ -145,6 +146,7 @@ def _flatten_estimators(obj) -> Iterable[object]:
                         stack.append(val)
                 except Exception:
                     pass
+        # calibrated classifiers
         if hasattr(cur, "calibrated_classifiers_"):
             try:
                 for cc in getattr(cur, "calibrated_classifiers_"):
@@ -152,15 +154,17 @@ def _flatten_estimators(obj) -> Iterable[object]:
                         stack.append(cc.estimator)
             except Exception:
                 pass
+        # sklearn Pipeline
         if hasattr(cur, "named_steps"):
             try:
-                for v in dict(cur.named_steps).values():
+                for v in dict(getattr(cur, "named_steps")).values():
                     stack.append(v)
             except Exception:
                 pass
 
 def _infer_n_features(model) -> Optional[int]:
     for est in _flatten_estimators(model):
+        # sklearn >= 1: n_features_in_
         if hasattr(est, "n_features_in_"):
             try:
                 n = int(getattr(est, "n_features_in_"))
@@ -168,6 +172,7 @@ def _infer_n_features(model) -> Optional[int]:
                     return n
             except Exception:
                 pass
+        # fallback: coef_.shape
         if hasattr(est, "coef_"):
             try:
                 coef = getattr(est, "coef_")
@@ -185,102 +190,48 @@ def _choose_n_columns(num_df: pd.DataFrame, n: int) -> pd.DataFrame:
     cols = list(num_df.columns)
     if len(cols) <= n:
         return num_df
-    def score(name: str):
+    # score columns by keyword presence
+    def score(name: str) -> tuple:
         low = name.lower()
-        hits = tuple(int(k in low) for k in _PRIORITY)
-        return (sum(hits),) + hits + (-len(name),)
+        hit = tuple(int(k in low) for k in _PRIORITY)
+        # more hits first, then alphabetic tiebreaker
+        return (sum(hit),) + hit + (-len(name),)  # prefer shorter slightly
     ranked = sorted(cols, key=lambda c: score(c), reverse=True)
     pick = ranked[:n]
     return num_df[pick]
 
-def _align_rows_to_fixtures(X_df: pd.DataFrame, fixtures_df: pd.DataFrame) -> pd.DataFrame:
-    """Try to filter/align X rows so that len(X) == len(fixtures), keeping fixtures order."""
-    if not isinstance(X_df, pd.DataFrame):
-        return X_df
-    if len(X_df) == len(fixtures_df):
-        return X_df
-
-    def try_keys(keys: List[str]):
-        common = [k for k in keys if k in X_df.columns and k in fixtures_df.columns]
-        if not common:
-            return None
-        fx = fixtures_df[common].copy()
-        fx["_row_order"] = np.arange(len(fx))
-        merged = X_df.merge(fx, on=common, how="inner")
-        if len(merged) == len(fx):
-            merged = merged.sort_values("_row_order").drop(columns=["_row_order"])
-            return merged
-        return None
-
-    # 1) ID-like keys
-    for k in (["fixture_id"], ["event_id"], ["match_id"], ["id"], ["game_id"], ["sofascore_id"], ["sofascore_event_id"]):
-        m = try_keys(k)
-        if m is not None:
-            print(f"[tips] aligned by key {k[0]}: {len(X_df)} -> {len(m)}", flush=True)
-            return m
-
-    # 2) Player pairs + optional date/day
-    def normcol(df, col):
-        if col not in df.columns:
-            return None
-        s = df[col].astype(str).str.strip().str.lower()
-        return s
-
-    for p1, p2 in (("player1","player2"), ("p1","p2"), ("home","away")):
-        if p1 in X_df.columns and p2 in X_df.columns and p1 in fixtures_df.columns and p2 in fixtures_df.columns:
-            X2 = X_df.copy()
-            F2 = fixtures_df.copy()
-            X2[p1+"_n"] = normcol(X2, p1)
-            X2[p2+"_n"] = normcol(X2, p2)
-            F2[p1+"_n"] = normcol(F2, p1)
-            F2[p2+"_n"] = normcol(F2, p2)
-
-            # try with date
-            for dcol in ("date","match_date","start_time","start","kickoff"):
-                if dcol in X2.columns and dcol in F2.columns:
-                    X2[dcol+"_d"] = pd.to_datetime(X2[dcol], errors="coerce").dt.date
-                    F2[dcol+"_d"] = pd.to_datetime(F2[dcol], errors="coerce").dt.date
-                    m = X2.merge(F2[[p1+"_n", p2+"_n", dcol+"_d"]].assign(_row_order=np.arange(len(F2))),
-                                 on=[p1+"_n", p2+"_n", dcol+"_d"], how="inner")
-                    if len(m) == len(F2):
-                        m = m.sort_values("_row_order").drop(columns=["_row_order"])
-                        print(f"[tips] aligned by {p1},{p2},{dcol}: {len(X_df)} -> {len(m)}", flush=True)
-                        return m
-            # try without date
-            m = X2.merge(F2[[p1+"_n", p2+"_n"]].assign(_row_order=np.arange(len(F2))),
-                         on=[p1+"_n", p2+"_n"], how="inner")
-            if len(m) == len(F2):
-                m = m.sort_values("_row_order").drop(columns=["_row_order"])
-                print(f"[tips] aligned by {p1},{p2}: {len(X_df)} -> {len(m)}", flush=True)
-                return m
-
-    # 3) Last resort: cut head to fixtures length
-    print(f"[tips] WARN: could not key-align features; trimming {len(X_df)} -> {len(fixtures_df)}", flush=True)
-    return X_df.head(len(fixtures_df)).reset_index(drop=True)
-
 def _prepare_X_for_model(X: object, model: object | None = None):
-    """Convert to numeric numpy; handle datetimes; align columns to model n_features if needed."""
+    """
+    Ensure X is numeric numpy array:
+      - convert datetime cols to epoch seconds (no .view warnings)
+      - drop non-numeric
+      - align to model expected n_features when possible
+      - return numpy array
+    """
     if not isinstance(X, pd.DataFrame):
         return X
     df = X.copy()
 
-    # Convert datetime cols to epoch seconds (future-proof)
+    # Convert datetimes (incl tz-aware) to epoch seconds (ns -> s)
     dt_cols = list(df.select_dtypes(include=["datetime64[ns]", "datetime64[ns, UTC]", "datetimetz"]).columns)
     for c in dt_cols:
         ts = pd.to_datetime(df[c], utc=True, errors="coerce")
+        # astype('int64') is the future-proof way (replaces .view('int64'))
         df[c] = ts.astype("int64", copy=False) / 1e9
 
-    # Keep only numeric/bool
+    # Keep only numeric/bool -> float
     num_df = df.select_dtypes(include=[np.number, "bool"]).astype(float)
     num_df = num_df.replace([np.inf, -np.inf], np.nan).fillna(0.0)
 
-    # Align to model dimensionality if known
+    # Try to align dimensionality with the model
     n_expected = _infer_n_features(model) if model is not None else None
     if isinstance(n_expected, int) and n_expected > 0:
         if num_df.shape[1] > n_expected:
+            # choose best n columns deterministically
             num_df = _choose_n_columns(num_df, n_expected)
             print(f"[tips] note: reduced features {X.shape[1]} -> {n_expected}", flush=True)
         elif num_df.shape[1] < n_expected:
+            # pad zeros to the right to match expected n
             diff = n_expected - num_df.shape[1]
             for i in range(diff):
                 num_df[f"_pad{i}"] = 0.0
@@ -301,10 +252,6 @@ def _generate_tips(history_df: pd.DataFrame, fixtures_df: pd.DataFrame, config_p
     # Fallback: build_features + optional model
     from .features import build_features  # type: ignore
     X = _smart_call(build_features, history_df, fixtures_df, cfg, config_path, model_path)
-
-    # --- NEW: align rows of X to fixtures before numeric conversion/prediction ---
-    if isinstance(X, pd.DataFrame) and len(X) != len(fixtures_df):
-        X = _align_rows_to_fixtures(X, fixtures_df)
 
     if model_path:
         import joblib

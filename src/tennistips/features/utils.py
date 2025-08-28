@@ -2,7 +2,7 @@ from __future__ import annotations
 import pandas as pd
 import numpy as np
 from typing import Dict
-from .elo import PlayerState, new_player, get_surface_elo, update_surface_elo, expected_score, k_factor
+from ..elo import PlayerState, new_player, get_surface_elo, update_surface_elo, expected_score, k_factor
 
 def build_features(matches: pd.DataFrame, start_elo: float, k_base: float, surface_k_boost: float, form_window: int, h2h_decay: float) -> pd.DataFrame:
     df = matches.copy()
