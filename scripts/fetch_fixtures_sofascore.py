@@ -206,49 +206,76 @@ class SofaScorePlaywrightProvider:
             raise RuntimeError(
                 "Playwright não está instalado. Faz: pip install playwright && playwright install"
             ) from e
-        # guardar referência
         self._sync_playwright = __import__("playwright.sync_api", fromlist=["sync_playwright"]).sync_playwright
 
-    def _collect_from_network(self, page, date_iso: str):
-        """
-        Espera pela chamada XHR ao endpoint scheduled-events/{date} e devolve o JSON.
-        """
-        target = self.API_BASE.format(date=date_iso)
-
-        def is_target(resp):
-            try:
-                return resp.url.startswith(target) and resp.request.method == "GET"
-            except Exception:
-                return False
-
-        # Ao navegar, a página costuma disparar a chamada. Esperamos até 10s.
-        try:
-            resp = page.wait_for_response(is_target, timeout=10000)
-            return resp.json()
-        except Exception:
-            return None
-
     def fetch_day(self, date_iso: str) -> List[Dict[str, Any]]:
-        from playwright.sync_api import TimeoutError as PWTimeoutError  # type: ignore
         rows: List[Dict[str, Any]] = []
+
+        def normalize_events(data):
+            events = (data or {}).get("events") or (data or {}).get("sportItem", {}).get("events") or []
+            out = []
+            for ev in events:
+                if not isinstance(ev, dict):
+                    continue
+                tournament = (ev.get("tournament") or {}).get("name") or ""
+                category = (ev.get("tournament") or {}).get("category", {}).get("name") or ""
+                home = (ev.get("homeTeam") or ev.get("homePlayer") or {}).get("name") or ""
+                away = (ev.get("awayTeam") or ev.get("awayPlayer") or {}).get("name") or ""
+                start_ts = ev.get("startTimestamp")
+                event_id = ev.get("id")
+                out.append({
+                    "date": date_iso,
+                    "event_id": event_id or "",
+                    "tournament": tournament,
+                    "category": category,
+                    "surface": "",
+                    "home": home,
+                    "away": away,
+                    "start_ts": start_ts,
+                })
+            return out
+
         with self._sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
             context = browser.new_context(
                 locale="en-US",
-                user_agent=(
-                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
-                ),
+                timezone_id="Europe/Lisbon",
+                user_agent=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                            "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"),
             )
             page = context.new_page()
 
-            # 1) Abre a página do dia
-            page.goto(self.PAGE.format(date=date_iso), wait_until="domcontentloaded", timeout=60000)
+            captured_json = []
 
-            # 2) Tenta apanhar a resposta da própria página
-            data = self._collect_from_network(page, date_iso)
+            def on_response(resp):
+                url = resp.url.lower()
+                if ("api.sofascore.com" in url and "scheduled-events" in url and "/tennis/" in url):
+                    try:
+                        data = resp.json()
+                        if isinstance(data, dict):
+                            captured_json.append(data)
+                    except Exception:
+                        pass
 
-            # 3) Fallback: chamar o endpoint diretamente via contexto Playwright (herda headers/cookies)
+            page.on("response", on_response)
+
+            # 1) Abre a página e espera "quietude" de rede
+            page.goto(self.PAGE.format(date=date_iso), wait_until="networkidle", timeout=60000)
+
+            # 2) Pequeno scroll para disparar lazy loads + novo idle
+            page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+            page.wait_for_timeout(1200)
+            page.wait_for_load_state("networkidle")
+
+            data = None
+            # 3) Usar qualquer blob XHR que tenha eventos
+            for blob in captured_json:
+                evs = blob.get("events") or blob.get("sportItem", {}).get("events")
+                if evs:
+                    data = blob
+                    break
+
+            # 4) Fallback: HTTP client do Playwright (herda parte do contexto)
             if not data:
                 try:
                     api_url = self.API_BASE.format(date=date_iso)
@@ -258,32 +285,27 @@ class SofaScorePlaywrightProvider:
                 except Exception:
                     data = None
 
+            # 5) Fallback final (NOVO): fetch no contexto da página (usa Referer/UA do browser)
+            if not data:
+                try:
+                    api_url = self.API_BASE.format(date=date_iso)
+                    js = f"""
+                      async () => {{
+                        const res = await fetch("{api_url}", {{
+                          method: "GET",
+                          credentials: "omit"
+                        }});
+                        if (!res.ok) return null;
+                        return await res.json();
+                      }}
+                    """
+                    data = page.evaluate(js)
+                except Exception:
+                    data = None
+
             browser.close()
 
-        if not data:
-            # Se ainda assim nada, devolve 0 para este dia
-            return rows
-
-        events = data.get("events") or data.get("sportItem", {}).get("events") or []
-        for ev in events:
-            tournament = (ev.get("tournament") or {}).get("name") or ""
-            category = (ev.get("tournament") or {}).get("category", {}).get("name") or ""
-            home = (ev.get("homeTeam") or ev.get("homePlayer") or {}).get("name") or ""
-            away = (ev.get("awayTeam") or ev.get("awayPlayer") or {}).get("name") or ""
-            start_ts = ev.get("startTimestamp")
-            event_id = ev.get("id")
-            surface = ""
-            rows.append({
-                "date": date_iso,
-                "event_id": event_id or "",
-                "tournament": tournament,
-                "category": category,
-                "surface": surface,
-                "home": home,
-                "away": away,
-                "start_ts": start_ts,
-            })
-        return rows
+        return normalize_events(data)
 
 # ---------------------------
 # CLI
@@ -307,8 +329,14 @@ def main():
     rows: List[Dict[str, Any]] = []
     for d in dates:
         print(f"[info] A buscar fixtures de {d} via {args.provider}...")
-        rows.extend(provider.fetch_day(d))
-        time.sleep(0.7)  # civilidade
+    try:
+        day_rows = provider.fetch_day(d)
+        print(f"[info] {len(day_rows)} eventos em {d}")
+        rows.extend(day_rows)
+    except Exception as e:
+        print(f"[warn] Falhou {d}: {e}")
+    time.sleep(0.7)
+
 
     write_csv(args.out, rows)
 
