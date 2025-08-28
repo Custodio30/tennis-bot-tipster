@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 import os, sys, csv, json, pathlib, subprocess
-from typing import Dict, Any, List, Optional, Iterable
+from typing import Dict, Any, List, Iterable
 from flask import Flask, request, jsonify, send_from_directory, Response
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -20,11 +20,27 @@ app = Flask(__name__)
 def ensure_parent(path: str | pathlib.Path):
     pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
 
+def _proc_env() -> dict:
+    """Ambiente para subprocessos com UTF-8 forçado (evita UnicodeEncodeError no Windows)."""
+    env = os.environ.copy()
+    env["PYTHONUTF8"] = "1"
+    env["PYTHONIOENCODING"] = "utf-8"
+    return env
+
 def run_cmd(args: List[str], cwd: pathlib.Path | None = None) -> Dict[str, Any]:
     if cwd is None:
         cwd = HERE
     try:
-        p = subprocess.run(args, cwd=str(cwd), capture_output=True, text=True, shell=False)
+        p = subprocess.run(
+            args,
+            cwd=str(cwd),
+            capture_output=True,
+            text=True,
+            shell=False,
+            env=_proc_env(),
+            encoding="utf-8",
+            errors="replace",
+        )
         return {"cmd": args, "code": p.returncode, "stdout": p.stdout, "stderr": p.stderr}
     except Exception as e:
         return {"cmd": args, "code": -1, "stdout": "", "stderr": str(e)}
@@ -35,7 +51,17 @@ def stream_cmd(args: List[str], cwd: pathlib.Path | None = None) -> Iterable[str
         cwd = HERE
     yield f"data: {json.dumps({'event':'start','cmd':args})}\n\n"
     try:
-        p = subprocess.Popen(args, cwd=str(cwd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, bufsize=1)
+        p = subprocess.Popen(
+            args,
+            cwd=str(cwd),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+            env=_proc_env(),
+            encoding="utf-8",
+            errors="replace",
+        )
         assert p.stdout is not None
         for line in p.stdout:
             yield f"data: {json.dumps({'event':'log','line':line.rstrip()})}\n\n"
@@ -456,8 +482,8 @@ def page_pipeline():
       const $=(s)=>document.querySelector(s); const L=document.getElementById('logs');
       function log(id,msg){
         const pre=document.getElementById(id);
-        if(pre){ pre.textContent += (msg+'\n'); pre.scrollTop = pre.scrollHeight; }
-        L.textContent = '[' + new Date().toLocaleTimeString() + '] ' + id + ': ' + msg + '\n' + L.textContent;
+        if(pre){ pre.textContent += (msg+'\\n'); pre.scrollTop = pre.scrollHeight; }
+        L.textContent = '[' + new Date().toLocaleTimeString() + '] ' + id + ': ' + msg + '\\n' + L.textContent;
       }
       async function postJSON(url,p){ const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}); return r.json(); }
       function sse(url, id){
@@ -475,9 +501,9 @@ def page_pipeline():
       function enc(v){ return encodeURIComponent(v); }
       function buildQS(o){ return Object.entries(o).map(function(kv){return kv[0] + '=' + enc(kv[1]);}).join('&'); }
 
-      async function runFetch(){ const payload={}; payload.provider=$('#fetch_provider').value; payload.days=Number($('#fetch_days').value||2); payload.out=$('#fetch_out').value; log('log_fetch', JSON.stringify(payload)); const j=await postJSON('/api/fetch', payload); log('log_fetch', (j.code===0?'OK':'ERR')+"\n"+(j.stdout||'')+"\n"+(j.stderr||'')); }
-      async function runPrep(){ const payload={}; payload.src=$('#prep_src').value; payload.out=$('#prep_out').value; log('log_prep', JSON.stringify(payload)); const j=await postJSON('/api/prep', payload); log('log_prep', (j.code===0?'OK':'ERR')+"\n"+(j.stdout||'')+"\n"+(j.stderr||'')); }
-      async function runTips(){ const payload={}; payload.history=$('#tips_hist').value; payload.fixtures=$('#tips_fx').value; payload.config=$('#tips_cfg').value; payload.model_path=$('#tips_model').value; payload.out=$('#tips_out').value; log('log_tips', JSON.stringify(payload)); const j=await postJSON('/api/tips', payload); log('log_tips', (j.code===0?'OK':'ERR')+"\n"+(j.stdout||'')+"\n"+(j.stderr||'')); }
+      async function runFetch(){ const payload={}; payload.provider=$('#fetch_provider').value; payload.days=Number($('#fetch_days').value||2); payload.out=$('#fetch_out').value; log('log_fetch', JSON.stringify(payload)); const j=await postJSON('/api/fetch', payload); log('log_fetch', (j.code===0?'OK':'ERR')+"\\n"+(j.stdout||'')+"\\n"+(j.stderr||'')); }
+      async function runPrep(){ const payload={}; payload.src=$('#prep_src').value; payload.out=$('#prep_out').value; log('log_prep', JSON.stringify(payload)); const j=await postJSON('/api/prep', payload); log('log_prep', (j.code===0?'OK':'ERR')+"\\n"+(j.stdout||'')+"\\n"+(j.stderr||'')); }
+      async function runTips(){ const payload={}; payload.history=$('#tips_hist').value; payload.fixtures=$('#tips_fx').value; payload.config=$('#tips_cfg').value; payload.model_path=$('#tips_model').value; payload.out=$('#tips_out').value; log('log_tips', JSON.stringify(payload)); const j=await postJSON('/api/tips', payload); log('log_tips', (j.code===0?'OK':'ERR')+"\\n"+(j.stdout||'')+"\\n"+(j.stderr||'')); }
 
       async function runFilter(){
         const payload={};
@@ -489,7 +515,7 @@ def page_pipeline():
         payload.half_life=Number($('#flt_halflife').value || 7);
         log('log_filter', JSON.stringify(payload));
         const j=await postJSON('/api/filter', payload);
-        log('log_filter', (j.code===0?'OK':'ERR')+"\n"+(j.stdout||'')+"\n"+(j.stderr||''));
+        log('log_filter', (j.code===0?'OK':'ERR')+"\\n"+(j.stdout||'')+"\\n"+(j.stderr||''));
       }
       async function runAll(){ await runFetch(); await runPrep(); await runTips(); await runFilter(); }
 
