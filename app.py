@@ -6,11 +6,11 @@
 
 from __future__ import annotations
 import os, sys, csv, json, pathlib, subprocess
-from typing import Dict, Any, List, Iterable
+from typing import Dict, Any, List, Iterable, Tuple
 from flask import Flask, request, jsonify, send_from_directory, Response
 
 HERE = pathlib.Path(__file__).resolve().parent
-PY = sys.executable  # current venv python
+PY = sys.executable
 SETTINGS_JSON = HERE / "configs" / "ui_settings.json"
 
 app = Flask(__name__)
@@ -21,7 +21,6 @@ def ensure_parent(path: str | pathlib.Path):
     pathlib.Path(path).parent.mkdir(parents=True, exist_ok=True)
 
 def _proc_env() -> dict:
-    """Ambiente para subprocessos com UTF-8 forçado (evita UnicodeEncodeError no Windows)."""
     env = os.environ.copy()
     env["PYTHONUTF8"] = "1"
     env["PYTHONIOENCODING"] = "utf-8"
@@ -32,35 +31,21 @@ def run_cmd(args: List[str], cwd: pathlib.Path | None = None) -> Dict[str, Any]:
         cwd = HERE
     try:
         p = subprocess.run(
-            args,
-            cwd=str(cwd),
-            capture_output=True,
-            text=True,
-            shell=False,
-            env=_proc_env(),
-            encoding="utf-8",
-            errors="replace",
+            args, cwd=str(cwd), capture_output=True, text=True,
+            shell=False, env=_proc_env(), encoding="utf-8", errors="replace",
         )
         return {"cmd": args, "code": p.returncode, "stdout": p.stdout, "stderr": p.stderr}
     except Exception as e:
         return {"cmd": args, "code": -1, "stdout": "", "stderr": str(e)}
 
 def stream_cmd(args: List[str], cwd: pathlib.Path | None = None) -> Iterable[str]:
-    """SSE stream of a process' stdout/stderr in real time."""
     if cwd is None:
         cwd = HERE
     yield f"data: {json.dumps({'event':'start','cmd':args})}\n\n"
     try:
         p = subprocess.Popen(
-            args,
-            cwd=str(cwd),
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
-            bufsize=1,
-            env=_proc_env(),
-            encoding="utf-8",
-            errors="replace",
+            args, cwd=str(cwd), stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            text=True, bufsize=1, env=_proc_env(), encoding="utf-8", errors="replace",
         )
         assert p.stdout is not None
         for line in p.stdout:
@@ -70,7 +55,7 @@ def stream_cmd(args: List[str], cwd: pathlib.Path | None = None) -> Iterable[str
     except Exception as e:
         yield f"data: {json.dumps({'event':'error','message':str(e)})}\n\n"
 
-# ----------------------- settings (persist on disk) -----------------------
+# ----------------------- settings -----------------------
 
 def read_settings() -> Dict[str, Any]:
     if SETTINGS_JSON.exists():
@@ -168,7 +153,7 @@ def api_filter():
     d = request.get_json(force=True)
     src = d.get("src", r"outputs/tips.csv")
     out = d.get("out", r"outputs/tips_filtered.csv")
-    news = d.get("news")  # ex.: "data/news/news_flags.csv"
+    news = d.get("news")
     min_prob = str(d.get("min_prob", 0.60))
     penalty = str(d.get("penalty", 0.35))
     half_life = str(d.get("half_life", 7))
@@ -178,48 +163,96 @@ def api_filter():
         args.extend(["--news", news])
     return jsonify(run_cmd(args))
 
-# ----------------------- API: pipeline (SSE streaming) -----------------------
-
-@app.get("/api/stream/fetch")
-def sse_fetch():
-    provider = request.args.get("provider", "sofascore_playwright")
-    days = request.args.get("days", "2")
-    out = request.args.get("out", r"data\fixtures\latest.csv")
-    ensure_parent(out)
-    args = [PY, "scripts/fetch_fixtures_sofascore.py", "--provider", provider, "--days", days, "--out", out]
-    return Response(stream_cmd(args), mimetype='text/event-stream')
-
-@app.get("/api/stream/prep")
-def sse_prep():
-    src = request.args.get("src", r"data\fixtures\latest.csv")
-    out = request.args.get("out", r"data\fixtures\latest_for_tips.csv")
-    ensure_parent(out)
-    args = [PY, "scripts/prep_fixtures_for_tips.py", src, out]
-    return Response(stream_cmd(args), mimetype='text/event-stream')
-
-@app.get("/api/stream/tips")
-def sse_tips():
-    history = request.args.get("history", r"data/processed/matches.csv")
-    fixtures = request.args.get("fixtures", r"data/fixtures/latest_for_tips.csv")
-    config = request.args.get("config", r"configs/default.yaml")
-    model_path = request.args.get("model_path", r"models/model.joblib")
-    out = request.args.get("out", r"outputs/tips.csv")
-    ensure_parent(out)
-    args = [PY, "-m", "src.tennistips.cli", "tips", "--history", history, "--fixtures", fixtures, "--config", config, "--model-path", model_path, "--out", out]
-    return Response(stream_cmd(args), mimetype='text/event-stream')
+# ----------------------- API: pipeline (SSE) -----------------------
 
 @app.get("/api/stream/filter")
 def sse_filter():
     src = request.args.get("src", r"outputs/tips.csv")
     out = request.args.get("out", r"outputs/tips_filtered.csv")
-    news = request.args.get("news", None)
+    news = request.args.get("news")
     min_prob = request.args.get("min_prob", "0.60")
     penalty = request.args.get("penalty", "0.35")
     half_life = request.args.get("half_life", "7")
+
     ensure_parent(out)
     args = [PY, "scripts/filter_tips.py", src, out, "--min-prob", min_prob, "--penalty", penalty, "--half-life", half_life]
     if news:
         args.extend(["--news", news])
+    return Response(stream_cmd(args), mimetype='text/event-stream')
+
+# --------- helper: map “comp” (competição) para filtros de GS/Outros ---------
+
+def comp_to_filters(comp: str) -> Tuple[str, str, str]:
+    """
+    retorna (categories, best_of, name_like_regex)
+    comp: 'outros' | 'ausopen' | 'rolandgarros' | 'wimbledon' | 'usopen'
+    """
+    comp = (comp or "outros").lower()
+    if comp == "ausopen":
+        return ("gs", "5", r"Australian Open")
+    if comp == "rolandgarros":
+        return ("gs", "5", r"Roland Garros")
+    if comp == "wimbledon":
+        return ("gs", "5", r"Wimbledon")
+    if comp == "usopen":
+        return ("gs", "5", r"US Open")
+    # OUTROS = tudo que não é GS → BO3
+    return ("1000,500,250,challenger,itf", "3", "")
+
+# ----------------------- API: totals (sync) -----------------------
+
+@app.post("/api/totals")
+def api_totals():
+    d = request.get_json(force=True)
+    src = d.get("src", r"outputs/tips.csv")
+    out = d.get("out", r"outputs/totals.csv")
+    lines = d.get("lines", "20.5,21.5,22.5,23.5")
+    side = d.get("side", "over")          # over | under | both
+    tour = d.get("tour", "both")          # atp | wta | both
+    comp = d.get("comp", "outros")        # ausopen | rolandgarros | wimbledon | usopen | outros
+    min_prob = str(d.get("min_prob", 0.60))
+
+    # defaults silenciosos
+    half_life = "7"
+    gamma = "1.5"
+
+    categories, best_of, name_like = comp_to_filters(comp)
+
+    ensure_parent(out)
+    args = [PY, "scripts/generate_overunders.py", src, out,
+            "--lines", lines, "--side", side,
+            "--min-prob", min_prob, "--half-life", half_life, "--news-gamma", gamma,
+            "--tour", tour, "--categories", categories, "--best-of", best_of]
+    if name_like:
+        args.extend(["--name-like", name_like])
+
+    return jsonify(run_cmd(args))
+
+# ----------------------- API: totals (SSE) -----------------------
+
+@app.get("/api/stream/totals")
+def sse_totals():
+    src = request.args.get("src", r"outputs/tips.csv")
+    out = request.args.get("out", r"outputs/totals.csv")
+    lines = request.args.get("lines", "20.5,21.5,22.5,23.5")
+    side = request.args.get("side", "over")
+    tour = request.args.get("tour", "both")
+    comp = request.args.get("comp", "outros")
+    min_prob = request.args.get("min_prob", "0.60")
+
+    half_life = "7"
+    gamma = "1.5"
+
+    categories, best_of, name_like = comp_to_filters(comp)
+
+    ensure_parent(out)
+    args = [PY, "scripts/generate_overunders.py", src, out,
+            "--lines", lines, "--side", side,
+            "--min-prob", min_prob, "--half-life", half_life, "--news-gamma", gamma,
+            "--tour", tour, "--categories", categories, "--best-of", best_of]
+    if name_like:
+        args.extend(["--name-like", name_like])
+
     return Response(stream_cmd(args), mimetype='text/event-stream')
 
 # ----------------------- API: settings & uploads -----------------------
@@ -264,7 +297,6 @@ BASE_CSS = """
     .link{ @apply text-brand underline underline-offset-4; }
     .sidebar a{ @apply block px-3 py-2 rounded-lg text-sm font-medium hover:bg-brand/10; }
     .sidebar a.active{ @apply bg-brand/10 text-brand; }
-    .kbd{ @apply px-2 py-1 rounded border text-xs bg-neutral-100 dark:bg-neutral-800; }
   </style>
 """
 
@@ -283,7 +315,6 @@ NAVBAR = """
         <a class=\"hover:underline\" href=\"/about\">Sobre</a>
       </nav>
       <div class=\"flex items-center gap-3 text-sm\">
-        <button id=\"themeBtn\" class=\"btn btn-ghost\">🌓 Tema</button>
         <a class=\"btn btn-ghost\" href=\"/download/outputs/tips_filtered.csv\">⬇️ Tips</a>
       </div>
     </div>
@@ -308,10 +339,9 @@ BASE_JS = """
     const $ = (s)=>document.querySelector(s);
     const setBadge=(ok)=>{const el=$('#health'); if(!el) return; el.textContent= ok?'online':'offline'; el.className='badge '+(ok?'border-green-500 text-green-600':'border-red-500 text-red-600');};
     async function health(){ try{ const r=await fetch('/api/health'); setBadge(r.ok);}catch(e){ setBadge(false);} }
-    function toggleTheme(){ const d=document.documentElement; const dark=d.classList.toggle('dark'); localStorage.setItem('tt_theme', dark?'dark':'light'); }
     function initTheme(){ const t=localStorage.getItem('tt_theme'); if(t==='dark') document.documentElement.classList.add('dark'); }
     function activateSidebar(){ const path=location.pathname; document.querySelectorAll('.sidebar a').forEach(a=>{ if(path.startsWith(a.dataset.match)) a.classList.add('active'); }); }
-    window.addEventListener('DOMContentLoaded', ()=>{ initTheme(); health(); activateSidebar(); var tb=document.getElementById('themeBtn'); if(tb){ tb.addEventListener('click', toggleTheme); } });
+    window.addEventListener('DOMContentLoaded', ()=>{ initTheme(); health(); activateSidebar(); });
   </script>
 """
 
@@ -340,7 +370,6 @@ def layout(content_html: str, title: str = "Dashboard") -> str:
 </html>
 """
 
-# ---------- index ----------
 @app.get("/")
 def home():
     html = """
@@ -348,28 +377,6 @@ def home():
       <h2 class="text-xl font-semibold mb-2">Bem-vindo 👋</h2>
       <p class=text-sm>Use a barra lateral para navegar. Comece em <a class=link href=/pipeline>Pipeline</a>.</p>
     </div>
-    <div class="grid md:grid-cols-2 gap-6 mt-6">
-      <div class=card>
-        <h3 class="font-semibold mb-2">Atalhos rápidos</h3>
-        <div class="flex gap-2 flex-wrap">
-          <a class="btn btn-primary" href="/pipeline">Executar Pipeline</a>
-          <a class="btn btn-ghost" href="/files">Ver Ficheiros</a>
-          <a class="btn btn-ghost" href="/settings">Definições</a>
-        </div>
-      </div>
-      <div class=card>
-        <h3 class="font-semibold mb-2">Estado</h3>
-        <div id=status class=text-sm>—</div>
-      </div>
-    </div>
-    <script>
-      (async function(){
-        try{
-          const r=await fetch('/api/health'); const j=await r.json();
-          document.getElementById('status').textContent = 'Python '+(j.python||'?')+' • cwd '+(j.cwd||'?');
-        }catch(e){ document.getElementById('status').textContent='offline'; }
-      })();
-    </script>
     """
     return layout(html, title="Início")
 
@@ -386,6 +393,8 @@ def page_pipeline():
         <button id=btnAll class="btn btn-ghost">▶️ Executar Tudo</button>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+        <!-- 1) FETCH -->
         <div class=card>
           <h3 class="font-semibold mb-2">1) Buscar Fixtures</h3>
           <label class=text-xs>Provider</label>
@@ -401,6 +410,7 @@ def page_pipeline():
           <pre id=log_fetch class="mt-2 text-xs text-neutral-500 whitespace-pre-wrap h-28 overflow-auto"></pre>
         </div>
 
+        <!-- 2) PREP -->
         <div class=card>
           <h3 class="font-semibold mb-2">2) Preparar Fixtures</h3>
           <label class=text-xs>Input CSV</label>
@@ -414,6 +424,7 @@ def page_pipeline():
           <pre id=log_prep class="mt-2 text-xs text-neutral-500 whitespace-pre-wrap h-28 overflow-auto"></pre>
         </div>
 
+        <!-- 3) TIPS -->
         <div class=card>
           <h3 class="font-semibold mb-2">3) Gerar Tips</h3>
           <label class=text-xs>History</label>
@@ -433,6 +444,7 @@ def page_pipeline():
           <pre id=log_tips class="mt-2 text-xs text-neutral-500 whitespace-pre-wrap h-28 overflow-auto"></pre>
         </div>
 
+        <!-- 4) FILTER -->
         <div class=card>
           <h3 class="font-semibold mb-2">4) Filtrar Tips</h3>
           <label class=text-xs>Input CSV</label>
@@ -464,6 +476,61 @@ def page_pipeline():
           </div>
           <pre id=log_filter class="mt-2 text-xs text-neutral-500 whitespace-pre-wrap h-28 overflow-auto"></pre>
         </div>
+
+        <!-- 5) TOTALS (minimal + min_prob) -->
+        <div class=card>
+          <h3 class="font-semibold mb-2">5) Totais (Over/Under)</h3>
+          <label class=text-xs>Input CSV</label>
+          <input id=tot_src class="w-full border rounded-lg px-3 py-2 mb-2" value="%%TOT_SRC%%" />
+          <label class=text-xs>Out CSV</label>
+          <input id=tot_out class="w-full border rounded-lg px-3 py-2 mb-2" value="%%TOT_OUT%%" />
+
+          <label class=text-xs>Linhas (vírgula)</label>
+          <input id=tot_lines class="w-full border rounded-lg px-3 py-2 mb-2" value="%%TOT_LINES%%" />
+          <div class="flex gap-2 text-xs mb-2">
+            <button type="button" id="preset_bo3" class="btn btn-ghost">Preset BO3 (20.5–24.5)</button>
+            <button type="button" id="preset_bo5" class="btn btn-ghost">Preset BO5 (35.5–41.5)</button>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-2 mb-2">
+            <div>
+              <label class=text-xs>Side</label>
+              <select id=tot_side class="w-full border rounded-lg px-3 py-2">
+                <option value="over" selected>OVER</option>
+                <option value="under">UNDER</option>
+                <option value="both">OVER e UNDER</option>
+              </select>
+            </div>
+            <div>
+              <label class=text-xs>Tour</label>
+              <select id=tot_tour class="w-full border rounded-lg px-3 py-2">
+                <option value="both">ATP + WTA</option>
+                <option value="atp" selected>ATP</option>
+                <option value="wta">WTA</option>
+              </select>
+            </div>
+            <div>
+              <label class=text-xs>Min Prob</label>
+              <input id=tot_minprob type=number step="0.01" class="w-full border rounded-lg px-3 py-2" value="%%TOT_MINPROB%%" />
+            </div>
+          </div>
+
+          <label class=text-xs>Competição</label>
+          <select id=tot_comp class="w-full border rounded-lg px-3 py-2 mb-2">
+            <option value="outros" selected>Outros (ATP/WTA • BO3)</option>
+            <option value="ausopen">Australian Open</option>
+            <option value="rolandgarros">Roland Garros</option>
+            <option value="wimbledon">Wimbledon</option>
+            <option value="usopen">US Open</option>
+          </select>
+
+          <div class="flex gap-2">
+            <button id=btnTotals class="btn btn-primary">Gerar Totais</button>
+            <button id=btnTotalsSSE class="btn btn-ghost">SSE</button>
+          </div>
+          <pre id=log_totals class="mt-2 text-xs text-neutral-500 whitespace-pre-wrap h-28 overflow-auto"></pre>
+        </div>
+
       </div>
     </div>
 
@@ -480,77 +547,88 @@ def page_pipeline():
 
     <script>
       const $=(s)=>document.querySelector(s); const L=document.getElementById('logs');
-      function log(id,msg){
-        const pre=document.getElementById(id);
-        if(pre){ pre.textContent += (msg+'\\n'); pre.scrollTop = pre.scrollHeight; }
-        L.textContent = '[' + new Date().toLocaleTimeString() + '] ' + id + ': ' + msg + '\\n' + L.textContent;
-      }
+      function log(id,msg){ const pre=document.getElementById(id); if(pre){ pre.textContent += (msg+'\\n'); pre.scrollTop=pre.scrollHeight; } L.textContent='['+new Date().toLocaleTimeString()+'] '+id+': '+msg+'\\n'+L.textContent; }
       async function postJSON(url,p){ const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(p)}); return r.json(); }
-      function sse(url, id){
-        const es=new EventSource(url); log(id, '--- streaming ---');
-        es.onmessage=(ev)=>{
-          try{
-            const j=JSON.parse(ev.data);
-            if(j.event==='log') log(id,j.line);
-            if(j.event==='end'){ log(id,'[exit '+j.code+']'); es.close(); }
-            if(j.event==='error'){ log(id,'[error] '+j.message); es.close(); }
-          }catch(e){ log(id, ev.data); }
-        };
-        es.onerror=()=>{ log(id,'[sse error]'); es.close(); };
-      }
+      function sse(url,id){ const es=new EventSource(url); log(id,'--- streaming ---'); es.onmessage=(ev)=>{ try{ const j=JSON.parse(ev.data); if(j.event==='log') log(id,j.line); if(j.event==='end'){ log(id,'[exit '+j.code+']'); es.close(); } if(j.event==='error'){ log(id,'[error] '+j.message); es.close(); } }catch(e){ log(id,ev.data);} }; es.onerror=()=>{ log(id,'[sse error]'); es.close(); }; }
       function enc(v){ return encodeURIComponent(v); }
-      function buildQS(o){ return Object.entries(o).map(function(kv){return kv[0] + '=' + enc(kv[1]);}).join('&'); }
+      function buildQS(o){ return Object.entries(o).map(kv=>kv[0]+'='+enc(kv[1])).join('&'); }
 
-      async function runFetch(){ const payload={}; payload.provider=$('#fetch_provider').value; payload.days=Number($('#fetch_days').value||2); payload.out=$('#fetch_out').value; log('log_fetch', JSON.stringify(payload)); const j=await postJSON('/api/fetch', payload); log('log_fetch', (j.code===0?'OK':'ERR')+"\\n"+(j.stdout||'')+"\\n"+(j.stderr||'')); }
-      async function runPrep(){ const payload={}; payload.src=$('#prep_src').value; payload.out=$('#prep_out').value; log('log_prep', JSON.stringify(payload)); const j=await postJSON('/api/prep', payload); log('log_prep', (j.code===0?'OK':'ERR')+"\\n"+(j.stdout||'')+"\\n"+(j.stderr||'')); }
-      async function runTips(){ const payload={}; payload.history=$('#tips_hist').value; payload.fixtures=$('#tips_fx').value; payload.config=$('#tips_cfg').value; payload.model_path=$('#tips_model').value; payload.out=$('#tips_out').value; log('log_tips', JSON.stringify(payload)); const j=await postJSON('/api/tips', payload); log('log_tips', (j.code===0?'OK':'ERR')+"\\n"+(j.stdout||'')+"\\n"+(j.stderr||'')); }
+      async function runFetch(){ const payload={provider:$('#fetch_provider').value, days:Number($('#fetch_days').value||2), out:$('#fetch_out').value}; log('log_fetch', JSON.stringify(payload)); const j=await postJSON('/api/fetch', payload); log('log_fetch', (j.code===0?'OK':'ERR')+"\\n"+(j.stdout||'')+"\\n"+(j.stderr||'')); }
+      async function runPrep(){ const payload={src:$('#prep_src').value, out:$('#prep_out').value}; log('log_prep', JSON.stringify(payload)); const j=await postJSON('/api/prep', payload); log('log_prep', (j.code===0?'OK':'ERR')+"\\n"+(j.stdout||'')+"\\n"+(j.stderr||'')); }
+      async function runTips(){ const payload={history:$('#tips_hist').value, fixtures:$('#tips_fx').value, config:$('#tips_cfg').value, model_path:$('#tips_model').value, out:$('#tips_out').value}; log('log_tips', JSON.stringify(payload)); const j=await postJSON('/api/tips', payload); log('log_tips', (j.code===0?'OK':'ERR')+"\\n"+(j.stdout||'')+"\\n"+(j.stderr||'')); }
 
+      // Parte 4 — agora envia min_prob, penalty, half_life e news
       async function runFilter(){
-        const payload={};
-        payload.src=$('#flt_src').value;
-        payload.out=$('#flt_out').value;
-        payload.news=$('#flt_news').value || null;
-        payload.min_prob=Number($('#flt_minprob').value || 0.60);
-        payload.penalty=Number($('#flt_penalty').value || 0.35);
-        payload.half_life=Number($('#flt_halflife').value || 7);
+        const payload={
+          src:$('#flt_src').value,
+          out:$('#flt_out').value,
+          news:$('#flt_news').value,
+          min_prob: Number($('#flt_minprob').value || 0.60),
+          penalty: Number($('#flt_penalty').value || 0.35),
+          half_life: Number($('#flt_halflife').value || 7)
+        };
         log('log_filter', JSON.stringify(payload));
         const j=await postJSON('/api/filter', payload);
         log('log_filter', (j.code===0?'OK':'ERR')+"\\n"+(j.stdout||'')+"\\n"+(j.stderr||''));
       }
-      async function runAll(){ await runFetch(); await runPrep(); await runTips(); await runFilter(); }
 
-      function runFetchSSE(){ const qs = buildQS({provider:$('#fetch_provider').value,days:$('#fetch_days').value,out:$('#fetch_out').value}); sse('/api/stream/fetch?' + qs, 'log_fetch'); }
-      function runPrepSSE(){ const qs = buildQS({src:$('#prep_src').value,out:$('#prep_out').value}); sse('/api/stream/prep?' + qs, 'log_prep'); }
-      function runTipsSSE(){ const qs = buildQS({history:$('#tips_hist').value,fixtures:$('#tips_fx').value,config:$('#tips_cfg').value,model_path:$('#tips_model').value,out:$('#tips_out').value}); sse('/api/stream/tips?' + qs, 'log_tips'); }
       function runFilterSSE(){
-        const qs = buildQS({
-          src: $('#flt_src').value,
-          out: $('#flt_out').value,
-          news: $('#flt_news').value,
-          min_prob: $('#flt_minprob').value || 0.60,
-          penalty: $('#flt_penalty').value || 0.35,
-          half_life: $('#flt_halflife').value || 7
+        const qs=buildQS({
+          src:$('#flt_src').value,
+          out:$('#flt_out').value,
+          news:$('#flt_news').value,
+          min_prob:($('#flt_minprob').value || 0.60),
+          penalty:($('#flt_penalty').value || 0.35),
+          half_life:($('#flt_halflife').value || 7)
         });
-        sse('/api/stream/filter?' + qs, 'log_filter');
+        sse('/api/stream/filter?'+qs,'log_filter');
       }
 
+      async function runTotals(){
+        const payload={ src:$('#tot_src').value, out:$('#tot_out').value, lines:$('#tot_lines').value, side:$('#tot_side').value, tour:$('#tot_tour').value, comp:$('#tot_comp').value, min_prob: Number($('#tot_minprob').value || 0.60) };
+        log('log_totals', JSON.stringify(payload));
+        const j=await postJSON('/api/totals', payload);
+        log('log_totals', (j.code===0?'OK':'ERR')+"\\n"+(j.stdout||'')+"\\n"+(j.stderr||''));
+      }
+      function runTotalsSSE(){
+        const qs=buildQS({ src:$('#tot_src').value, out:$('#tot_out').value, lines:$('#tot_lines').value, side:$('#tot_side').value, tour:$('#tot_tour').value, comp:$('#tot_comp').value, min_prob:($('#tot_minprob').value || 0.60) });
+        sse('/api/stream/totals?'+qs,'log_totals');
+      }
+
+      async function runAll(){ await runFetch(); await runPrep(); await runTips(); await runFilter(); }
+
       document.addEventListener('DOMContentLoaded', function(){
-        document.getElementById('btnFetch').addEventListener('click', runFetch);
-        document.getElementById('btnFetchSSE').addEventListener('click', runFetchSSE);
-        document.getElementById('btnPrep').addEventListener('click', runPrep);
-        document.getElementById('btnPrepSSE').addEventListener('click', runPrepSSE);
-        document.getElementById('btnTips').addEventListener('click', runTips);
-        document.getElementById('btnTipsSSE').addEventListener('click', runTipsSSE);
-        document.getElementById('btnFilter').addEventListener('click', runFilter);
-        document.getElementById('btnFilterSSE').addEventListener('click', runFilterSSE);
-        document.getElementById('btnAll').addEventListener('click', runAll);
-        document.getElementById('btnClear').addEventListener('click', function(){ L.textContent=''; });
-        document.getElementById('btnSave').addEventListener('click', async function(){
-          const obj={};
-          ['fetch_provider','fetch_days','fetch_out','prep_src','prep_out',
-           'tips_hist','tips_fx','tips_cfg','tips_model','tips_out',
-           'flt_src','flt_out','flt_news','flt_minprob','flt_penalty','flt_halflife']
-            .forEach(function(k){ const el=document.getElementById(k); if(el) obj[k]=el.value; });
+        $('#btnFetch').addEventListener('click', runFetch);
+        $('#btnFetchSSE').addEventListener('click', ()=>{ const qs=buildQS({provider:$('#fetch_provider').value,days:$('#fetch_days').value,out:$('#fetch_out').value}); sse('/api/stream/fetch?'+qs,'log_fetch'); });
+        $('#btnPrep').addEventListener('click', runPrep);
+        $('#btnPrepSSE').addEventListener('click', ()=>{ const qs=buildQS({src:$('#prep_src').value,out:$('#prep_out').value}); sse('/api/stream/prep?'+qs,'log_prep'); });
+        $('#btnTips').addEventListener('click', runTips);
+        $('#btnTipsSSE').addEventListener('click', ()=>{ const qs=buildQS({history:$('#tips_hist').value,fixtures:$('#tips_fx').value,config:$('#tips_cfg').value,model_path:$('#tips_model').value,out:$('#tips_out').value}); sse('/api/stream/tips?'+qs,'log_tips'); });
+
+        $('#btnFilter').addEventListener('click', runFilter);
+        $('#btnFilterSSE').addEventListener('click', runFilterSSE);
+
+        $('#btnTotals').addEventListener('click', runTotals);
+        $('#btnTotalsSSE').addEventListener('click', runTotalsSSE);
+
+        $('#btnAll').addEventListener('click', runAll);
+        $('#btnClear').addEventListener('click', ()=>{ L.textContent=''; });
+
+        // Presets de linhas
+        document.getElementById('preset_bo3').addEventListener('click', ()=>{ document.getElementById('tot_lines').value='20.5,21.5,22.5,23.5,24.5'; });
+        document.getElementById('preset_bo5').addEventListener('click', ()=>{ document.getElementById('tot_lines').value='35.5,36.5,37.5,38.5,39.5,40.5,41.5'; });
+
+        document.getElementById('btnSave').addEventListener('click', async ()=>{
+          const obj={
+            fetch_provider:$('#fetch_provider').value, fetch_days:$('#fetch_days').value, fetch_out:$('#fetch_out').value,
+            prep_src:$('#prep_src').value, prep_out:$('#prep_out').value,
+            tips_hist:$('#tips_hist').value, tips_fx:$('#tips_fx').value, tips_cfg:$('#tips_cfg').value, tips_model:$('#tips_model').value, tips_out:$('#tips_out').value,
+            // Parte 4 defaults guardados
+            flt_src:$('#flt_src').value, flt_out:$('#flt_out').value, flt_news:$('#flt_news').value,
+            flt_minprob:$('#flt_minprob').value, flt_penalty:$('#flt_penalty').value, flt_halflife:$('#flt_halflife').value,
+            // Totals
+            tot_src:$('#tot_src').value, tot_out:$('#tot_out').value, tot_lines:$('#tot_lines').value, tot_side:$('#tot_side').value, tot_tour:$('#tot_tour').value, tot_comp:$('#tot_comp').value, tot_minprob:$('#tot_minprob').value
+          };
           await fetch('/api/save_settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
           alert('Definições guardadas.');
         });
@@ -569,12 +647,18 @@ def page_pipeline():
       .replace("%%TIPS_CFG%%", g('tips_cfg','configs/default.yaml'))
       .replace("%%TIPS_MODEL%%", g('tips_model','models/model.joblib'))
       .replace("%%TIPS_OUT%%", g('tips_out','outputs/tips.csv'))
+      # Parte 4 — agora com defaults reais
       .replace("%%FLT_SRC%%", g('flt_src','outputs/tips.csv'))
       .replace("%%FLT_OUT%%", g('flt_out','outputs/tips_filtered.csv'))
-      .replace("%%FLT_NEWS%%", g('flt_news', r'data\news\news_flags.csv'))
+      .replace("%%FLT_NEWS%%", g('flt_news',''))
       .replace("%%FLT_MINPROB%%", g('flt_minprob', 0.60))
       .replace("%%FLT_PENALTY%%", g('flt_penalty', 0.35))
       .replace("%%FLT_HALFLIFE%%", g('flt_halflife', 7))
+      # Totals defaults
+      .replace("%%TOT_SRC%%", g('tot_src','outputs/tips.csv'))
+      .replace("%%TOT_OUT%%", g('tot_out','outputs/totals.csv'))
+      .replace("%%TOT_LINES%%", g('tot_lines','20.5,21.5,22.5,23.5'))
+      .replace("%%TOT_MINPROB%%", g('tot_minprob', 0.60))
     )
     return layout(html, title="Pipeline")
 
@@ -601,15 +685,6 @@ def page_files():
       </div>
       <div id=preview class="overflow-auto max-h-96 border rounded-xl"></div>
     </div>
-    <div class=card>
-      <h3 class="font-semibold mb-2">Upload</h3>
-      <form id=upForm class="flex flex-col md:flex-row gap-3 items-start">
-        <input id=up_file type=file class="border rounded-lg px-3 py-2" />
-        <input id=up_dest class="border rounded-lg px-3 py-2 flex-1" placeholder="destino (ex.: configs/default.yaml ou models/model.joblib)" />
-        <button class="btn btn-primary" type=submit>Enviar</button>
-      </form>
-      <div id=up_msg class=text-sm text-neutral-500></div>
-    </div>
     <script>
       const $=(s)=>document.querySelector(s);
       async function refreshFiles(){
@@ -633,18 +708,7 @@ def page_files():
         const tb = rows.map(r=>`<tr>${r.map(cell=>`<td class='px-3 py-1 border-b'>${String(cell)}</td>`).join('')}</tr>`).join('');
         document.getElementById('preview').innerHTML = `<div class='overflow-auto max-h-96'><table class='min-w-full text-sm border'>${th}${tb}</table></div>`;
       }
-      document.addEventListener('DOMContentLoaded', ()=>{
-        refreshFiles(); document.getElementById('btnRefresh').addEventListener('click', refreshFiles);
-        document.getElementById('btnPreview').addEventListener('click', previewCsv);
-        document.getElementById('upForm').addEventListener('submit', async (e)=>{
-          e.preventDefault();
-          const f=document.getElementById('up_file').files[0]; const dest=document.getElementById('up_dest').value;
-          if(!f||!dest){ document.getElementById('up_msg').textContent='Escolha o ficheiro e o destino.'; return;}
-          const fd=new FormData(); fd.append('file', f); fd.append('dest', dest);
-          const r=await fetch('/api/upload',{method:'POST', body:fd}); const j=await r.json();
-          document.getElementById('up_msg').textContent = j.ok? ('Guardado em '+j.saved) : (j.error||'erro');
-        });
-      });
+      document.addEventListener('DOMContentLoaded', ()=>{ refreshFiles(); document.getElementById('btnRefresh').addEventListener('click', refreshFiles); document.getElementById('btnPreview').addEventListener('click', previewCsv); });
     </script>
     """
     return layout(html, title="Ficheiros")
@@ -673,35 +737,67 @@ def page_settings():
             <label>Config<input id=tips_cfg class="border rounded-lg px-3 py-2" value="%%P_TIPS_CFG%%"/></label>
             <label>Model<input id=tips_model class="border rounded-lg px-3 py-2" value="%%P_TIPS_MODEL%%"/></label>
             <label>Tips out<input id=tips_out class="border rounded-lg px-3 py-2" value="%%P_TIPS_OUT%%"/></label>
+
+            <!-- Defaults Parte 4 -->
             <label>Filter src<input id=flt_src class="border rounded-lg px-3 py-2" value="%%P_FLT_SRC%%"/></label>
             <label>Filter out<input id=flt_out class="border rounded-lg px-3 py-2" value="%%P_FLT_OUT%%"/></label>
+            <label>Filter news<input id=flt_news class="border rounded-lg px-3 py-2" value="%%P_FLT_NEWS%%"/></label>
+            <label>Filter min prob<input id=flt_minprob type=number step="0.01" class="border rounded-lg px-3 py-2" value="%%P_FLT_MINPROB%%"/></label>
+            <label>Filter penalty<input id=flt_penalty type=number step="0.01" class="border rounded-lg px-3 py-2" value="%%P_FLT_PENALTY%%"/></label>
+            <label>Filter half-life<input id=flt_halflife type=number class="border rounded-lg px-3 py-2" value="%%P_FLT_HALFLIFE%%"/></label>
 
-            <label>News CSV<input id=flt_news class="border rounded-lg px-3 py-2" value="%%P_FLT_NEWS%%"/></label>
-            <label>Min Prob<input id=flt_minprob type=number step="0.01" class="border rounded-lg px-3 py-2" value="%%P_FLT_MINPROB%%"/></label>
-            <label>Penalty<input id=flt_penalty type=number step="0.01" class="border rounded-lg px-3 py-2" value="%%P_FLT_PENALTY%%"/></label>
-            <label>Half-life<input id=flt_halflife type=number class="border rounded-lg px-3 py-2" value="%%P_FLT_HALFLIFE%%"/></label>
+            <label>Totals src<input id=tot_src class="border rounded-lg px-3 py-2" value="%%P_TOT_SRC%%"/></label>
+            <label>Totals out<input id=tot_out class="border rounded-lg px-3 py-2" value="%%P_TOT_OUT%%"/></label>
+            <label>Totals linhas<input id=tot_lines class="border rounded-lg px-3 py-2" value="%%P_TOT_LINES%%"/></label>
+            <label>Totals side
+              <select id=tot_side class="border rounded-lg px-3 py-2">
+                <option value="over" selected>OVER</option>
+                <option value="under">UNDER</option>
+                <option value="both">OVER e UNDER</option>
+              </select>
+            </label>
+            <label>Totals tour
+              <select id=tot_tour class="border rounded-lg px-3 py-2">
+                <option value="both">ATP + WTA</option>
+                <option value="atp" selected>ATP</option>
+                <option value="wta">WTA</option>
+              </select>
+            </label>
+            <label>Totals competição
+              <select id=tot_comp class="border rounded-lg px-3 py-2">
+                <option value="outros" selected>Outros (BO3)</option>
+                <option value="ausopen">Australian Open</option>
+                <option value="rolandgarros">Roland Garros</option>
+                <option value="wimbledon">Wimbledon</option>
+                <option value="usopen">US Open</option>
+              </select>
+            </label>
+            <label>Totals min prob<input id=tot_minprob type=number step="0.01" class="border rounded-lg px-3 py-2" value="%%P_TOT_MINPROB%%"/></label>
           </div>
           <div class="mt-3"><button id=btnSave class="btn btn-primary">Guardar</button></div>
-        </div>
-        <div class=card>
-          <h3 class="font-semibold mb-2">Aparência</h3>
-          <button id=themeBtn class="btn btn-ghost">🌓 Alternar tema</button>
-          <p class="text-xs text-neutral-500 mt-2">Preferência é guardada no browser.</p>
         </div>
       </div>
     </div>
     <script>
       const $=(s)=>document.querySelector(s);
       document.addEventListener('DOMContentLoaded', function(){
+        // Selecionar dropdowns com defaults, se existirem no JSON
+        const setSelect=(id,val)=>{ const el=document.getElementById(id); if(el && val){ el.value=val; } };
+        setSelect('tot_side', '%%P_TOT_SIDE%%');
+        setSelect('tot_tour', '%%P_TOT_TOUR%%');
+        setSelect('tot_comp', '%%P_TOT_COMP%%');
+
         document.getElementById('btnSave').addEventListener('click', async function(){
-          const keys=['fetch_provider','fetch_days','fetch_out','prep_src','prep_out','tips_hist','tips_fx','tips_cfg','tips_model','tips_out','flt_src','flt_out','flt_news','flt_minprob','flt_penalty','flt_halflife'];
-          const obj={}; keys.forEach(function(k){ obj[k]=document.getElementById(k).value; });
+          const keys=[
+            'fetch_provider','fetch_days','fetch_out',
+            'prep_src','prep_out',
+            'tips_hist','tips_fx','tips_cfg','tips_model','tips_out',
+            'flt_src','flt_out','flt_news','flt_minprob','flt_penalty','flt_halflife',
+            'tot_src','tot_out','tot_lines','tot_side','tot_tour','tot_comp','tot_minprob'
+          ];
+          const obj={}; keys.forEach(function(k){ const el=document.getElementById(k); if(el) obj[k]=el.value; });
           await fetch('/api/save_settings',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(obj)});
           alert('Guardado.');
-        });
-        document.getElementById('themeBtn').addEventListener('click', function(){
-          const d=document.documentElement; const dark=d.classList.toggle('dark');
-          localStorage.setItem('tt_theme', dark?'dark':'light');
         });
       });
     </script>
@@ -718,12 +814,21 @@ def page_settings():
       .replace("%%P_TIPS_CFG%%", val('tips_cfg','configs/default.yaml'))
       .replace("%%P_TIPS_MODEL%%", val('tips_model','models/model.joblib'))
       .replace("%%P_TIPS_OUT%%", val('tips_out','outputs/tips.csv'))
+      # Parte 4 defaults
       .replace("%%P_FLT_SRC%%", val('flt_src','outputs/tips.csv'))
       .replace("%%P_FLT_OUT%%", val('flt_out','outputs/tips_filtered.csv'))
-      .replace("%%P_FLT_NEWS%%", val('flt_news', r'data\news\news_flags.csv'))
+      .replace("%%P_FLT_NEWS%%", val('flt_news',''))
       .replace("%%P_FLT_MINPROB%%", val('flt_minprob', 0.60))
       .replace("%%P_FLT_PENALTY%%", val('flt_penalty', 0.35))
       .replace("%%P_FLT_HALFLIFE%%", val('flt_halflife', 7))
+      # Totals defaults
+      .replace("%%P_TOT_SRC%%", val('tot_src','outputs/tips.csv'))
+      .replace("%%P_TOT_OUT%%", val('tot_out','outputs/totals.csv'))
+      .replace("%%P_TOT_LINES%%", val('tot_lines','20.5,21.5,22.5,23.5'))
+      .replace("%%P_TOT_SIDE%%", val('tot_side','over'))
+      .replace("%%P_TOT_TOUR%%", val('tot_tour','both'))
+      .replace("%%P_TOT_COMP%%", val('tot_comp','outros'))
+      .replace("%%P_TOT_MINPROB%%", val('tot_minprob', 0.60))
     )
     return layout(html, title="Definições")
 
@@ -733,13 +838,7 @@ def page_about():
     html = """
     <div class=card>
       <h2 class="font-semibold text-lg mb-2">Sobre</h2>
-      <p class=text-sm>Dashboard profissional para gerir a pipeline Tennis Tipster (fixtures → prep → tips → filter). Construído com Flask, Tailwind e SSE para logs em tempo real.</p>
-      <ul class="list-disc pl-6 text-sm mt-3">
-        <li>Execução por passos ou completa</li>
-        <li>Logs em tempo real (SSE) e logs consolidados</li>
-        <li>Gestão de ficheiros, preview e download</li>
-        <li>Definições persistidas em <code>configs/ui_settings.json</code></li>
-      </ul>
+      <p class=text-sm>Dashboard profissional para gerir a pipeline Tennis Tipster (fixtures → prep → tips → filter). Construído com Flask, Tailwind e SSE.</p>
     </div>
     """
     return layout(html, title="Sobre")
