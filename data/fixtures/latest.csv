@@ -1,1 +1,1 @@
-date,tournament,level,surface,player1,player2,odds_p1,odds_p2
+date,event_id,tournament,category,surface,home,away,start_ts

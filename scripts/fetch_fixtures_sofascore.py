@@ -194,8 +194,10 @@ class SofaScoreHTMLProvider:
 # ------------------------------------------------------
 # Provider 3: SofaScore via Playwright (headless browser)
 # ------------------------------------------------------
+# --- PATCH: substitui a tua classe SofaScorePlaywrightProvider por esta ---
 class SofaScorePlaywrightProvider:
-    BASE = "https://www.sofascore.com/tennis/{date}"
+    API_BASE = "https://api.sofascore.com/api/v1/sport/tennis/scheduled-events/{date}"
+    PAGE = "https://www.sofascore.com/tennis/{date}"
 
     def __init__(self):
         try:
@@ -204,34 +206,84 @@ class SofaScorePlaywrightProvider:
             raise RuntimeError(
                 "Playwright não está instalado. Faz: pip install playwright && playwright install"
             ) from e
-        self.sync_playwright = __import__("playwright.sync_api", fromlist=["sync_playwright"]).sync_playwright
+        # guardar referência
+        self._sync_playwright = __import__("playwright.sync_api", fromlist=["sync_playwright"]).sync_playwright
+
+    def _collect_from_network(self, page, date_iso: str):
+        """
+        Espera pela chamada XHR ao endpoint scheduled-events/{date} e devolve o JSON.
+        """
+        target = self.API_BASE.format(date=date_iso)
+
+        def is_target(resp):
+            try:
+                return resp.url.startswith(target) and resp.request.method == "GET"
+            except Exception:
+                return False
+
+        # Ao navegar, a página costuma disparar a chamada. Esperamos até 10s.
+        try:
+            resp = page.wait_for_response(is_target, timeout=10000)
+            return resp.json()
+        except Exception:
+            return None
 
     def fetch_day(self, date_iso: str) -> List[Dict[str, Any]]:
-        with self.sync_playwright() as p:
+        from playwright.sync_api import TimeoutError as PWTimeoutError  # type: ignore
+        rows: List[Dict[str, Any]] = []
+        with self._sync_playwright() as p:
             browser = p.chromium.launch(headless=True)
-            context = browser.new_context(locale="en-US")
+            context = browser.new_context(
+                locale="en-US",
+                user_agent=(
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
+                ),
+            )
             page = context.new_page()
-            page.goto(self.BASE.format(date=date_iso), wait_until="networkidle", timeout=60000)
 
-            # Tenta ler um dos blobs globais
-            js = """
-            () => {
-              try { if (window.__NEXT_DATA__) return window.__NEXT_DATA__; } catch(e){}
-              try { if (window.__NUXT__) return window.__NUXT__; } catch(e){}
-              return null;
-            }
-            """
-            blob = page.evaluate(js)
+            # 1) Abre a página do dia
+            page.goto(self.PAGE.format(date=date_iso), wait_until="domcontentloaded", timeout=60000)
+
+            # 2) Tenta apanhar a resposta da própria página
+            data = self._collect_from_network(page, date_iso)
+
+            # 3) Fallback: chamar o endpoint diretamente via contexto Playwright (herda headers/cookies)
+            if not data:
+                try:
+                    api_url = self.API_BASE.format(date=date_iso)
+                    r = context.request.get(api_url, timeout=20000)
+                    if r.ok:
+                        data = r.json()
+                except Exception:
+                    data = None
+
             browser.close()
-        if not blob:
-            raise RuntimeError("Não encontrei dados no contexto da página (Playwright).")
-        # Reaproveita a extração do provider HTML para uniformizar
-        helper = SofaScoreHTMLProvider()
-        rows = helper._harvest_events_from_blob(blob)
-        return [
-            norm_row(date_iso, ev_id, tour, cat, surf, home, away, start_ts)
-            for (ev_id, tour, cat, surf, home, away, start_ts) in rows
-        ]
+
+        if not data:
+            # Se ainda assim nada, devolve 0 para este dia
+            return rows
+
+        events = data.get("events") or data.get("sportItem", {}).get("events") or []
+        for ev in events:
+            tournament = (ev.get("tournament") or {}).get("name") or ""
+            category = (ev.get("tournament") or {}).get("category", {}).get("name") or ""
+            home = (ev.get("homeTeam") or ev.get("homePlayer") or {}).get("name") or ""
+            away = (ev.get("awayTeam") or ev.get("awayPlayer") or {}).get("name") or ""
+            start_ts = ev.get("startTimestamp")
+            event_id = ev.get("id")
+            surface = ""
+            rows.append({
+                "date": date_iso,
+                "event_id": event_id or "",
+                "tournament": tournament,
+                "category": category,
+                "surface": surface,
+                "home": home,
+                "away": away,
+                "start_ts": start_ts,
+            })
+        return rows
 
 # ---------------------------
 # CLI
